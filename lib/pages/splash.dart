@@ -1,39 +1,141 @@
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'home.dart';
 
-class SplashPage extends StatelessWidget {
+class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<SplashPage> createState() => _SplashPageState();
+}
+
+class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
+  late AnimationController _scaleController;
+  late Animation<double> _scaleAnim;
+
+  late AnimationController _tickController;
+  late Animation<double> _tickAnim;
+
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  bool _playedPart1 = false;
+  bool _playedPart2 = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Controlador de escala
+    _scaleController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 2),
+    );
+    _scaleAnim = Tween<double>(begin: 0.3, end: 2.1).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.easeOut),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _tickController.forward();
+        }
+      });
+
+    // Controlador del tic
+    _tickController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+    _tickAnim = CurvedAnimation(parent: _tickController, curve: Curves.easeIn);
+
+    _scaleController.forward();
+
+    // Ir a la siguiente pantalla después de todo
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Home')),
+        MaterialPageRoute(builder: (_) => const MyHomePage(title: 'Home')),
       );
     });
+  }
 
+  @override
+  void dispose() {
+    _scaleController.dispose();
+    _tickController.dispose();
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Splash")),
+      backgroundColor: Colors.white,
       body: Center(
-        child: SizedBox(
-          width: 100,
-          height: 100,
-          child: AnimatedBuilder(
-            animation: AlwaysStoppedAnimation(1),
-            child: CircularProgressIndicator(
-              strokeWidth: 8,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-            ),
-            builder: (BuildContext context, Widget? child) {
-              return Transform.rotate(
-                angle: 2 * 3.14159265359 * (DateTime.now().millisecondsSinceEpoch % 1000) / 1000,
-                child: child,
-              );
-            },
-          ),
+        child: AnimatedBuilder(
+          animation: Listenable.merge([_scaleController, _tickController]),
+          builder: (_, __) {
+            final progress = _tickAnim.value;
+
+            // Reproducir sonidos en momentos específicos del tic
+            if (progress > 0.1 && !_playedPart1) {
+              _audioPlayer.play(AssetSource('sounds/parte1.mp3'));
+              _playedPart1 = true;
+            }
+            if (progress > 0.6 && !_playedPart2) {
+              _audioPlayer.play(AssetSource('sounds/parte2.mp3'));
+              _playedPart2 = true;
+            }
+
+            return Stack(
+              alignment: Alignment.center,
+              children: [
+                // Logo escalando
+                Transform.scale(
+                  scale: _scaleAnim.value,
+                  child: Image.asset(
+                    'assets/images/logo_pildora.png',
+                    width: 200,
+                    height: 200,
+                  ),
+                ),
+                // Canvas para dibujar el tic
+                CustomPaint(
+                  size: const Size(200, 350),
+                  painter: _CheckPainter(progress),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
   }
+}
+
+/// CustomPainter que dibuja progresivamente un tic
+class _CheckPainter extends CustomPainter {
+  final double progress;
+
+  _CheckPainter(this.progress);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.green
+      ..strokeWidth = 15
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    final path = Path()
+      ..moveTo(size.width * 0.2, size.height * 0.5)
+      ..lineTo(size.width * 0.45, size.height * 0.7)
+      ..lineTo(size.width * 1, size.height * 0.2);
+
+    if (progress > 0.01) {
+      final metric = path.computeMetrics().first;
+      final extract = metric.extractPath(0.0, metric.length * progress);
+      canvas.drawPath(extract, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _CheckPainter old) =>
+      old.progress != progress;
 }
