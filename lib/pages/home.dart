@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'clientes.dart';  // Importar la página de clientes
 import 'base_pages.dart';
 
 class MyHomePage extends StatelessWidget {
@@ -54,6 +55,14 @@ class MyHomePage extends StatelessWidget {
                       person['name']!,
                       style: const TextStyle(fontSize: 18),
                     ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ClientesPage(name: person['name']!),
+                        ),
+                      );
+                    }
                   ),
                 );
               },

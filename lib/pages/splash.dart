@@ -24,10 +24,9 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
 
-    // Controlador de escala
     _scaleController = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 2),
+      duration: const Duration(seconds: 3),
     );
     _scaleAnim = Tween<double>(begin: 0.3, end: 2.1).animate(
       CurvedAnimation(parent: _scaleController, curve: Curves.easeOut),
@@ -37,22 +36,34 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
         }
       });
 
-    // Controlador del tic
     _tickController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    _tickAnim = CurvedAnimation(parent: _tickController, curve: Curves.easeIn);
+    _tickAnim = CurvedAnimation(parent: _tickController, curve: Curves.easeIn)
+      ..addListener(_handleAudioPlayback);
 
     _scaleController.forward();
 
-    // Ir a la siguiente pantalla después de todo
     Future.delayed(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const MyHomePage(title: 'Home')),
       );
     });
+  }
+
+  void _handleAudioPlayback() {
+    final progress = _tickAnim.value;
+
+    if (progress > 0.1 && !_playedPart1) {
+      _playedPart1 = true;
+      _audioPlayer.play(AssetSource('sounds/parte1.mp3'));
+    }
+    if (progress > 0.6 && !_playedPart2) {
+      _playedPart2 = true;
+      _audioPlayer.play(AssetSource('sounds/parte2.mp3'));
+    }
   }
 
   @override
@@ -73,20 +84,9 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
           builder: (_, __) {
             final progress = _tickAnim.value;
 
-            // Reproducir sonidos en momentos específicos del tic
-            if (progress > 0.1 && !_playedPart1) {
-              _audioPlayer.play(AssetSource('sounds/parte1.mp3'));
-              _playedPart1 = true;
-            }
-            if (progress > 0.6 && !_playedPart2) {
-              _audioPlayer.play(AssetSource('sounds/parte2.mp3'));
-              _playedPart2 = true;
-            }
-
             return Stack(
               alignment: Alignment.center,
               children: [
-                // Logo escalando
                 Transform.scale(
                   scale: _scaleAnim.value,
                   child: Image.asset(
@@ -95,7 +95,6 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
                     height: 200,
                   ),
                 ),
-                // Canvas para dibujar el tic
                 CustomPaint(
                   size: const Size(200, 350),
                   painter: _CheckPainter(progress),
@@ -109,7 +108,6 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
   }
 }
 
-/// CustomPainter que dibuja progresivamente un tic
 class _CheckPainter extends CustomPainter {
   final double progress;
 
