@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PharmaCheck',
       theme: ThemeData(
-        fontFamily: 'Storyboo',
+        fontFamily: 'Lato',
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 3, 99, 179)),
       ),

@@ -63,7 +63,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 110, 179, 235),
       appBar: AppBar(
-        title: Text(widget.title),
         backgroundColor: const Color.fromARGB(255, 3, 99, 179),
       ),
       drawer: Consumer<UserData>(
