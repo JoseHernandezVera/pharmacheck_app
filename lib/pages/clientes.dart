@@ -68,10 +68,9 @@ class _ClientesPageState extends State<ClientesPage> {
                       DropdownButton<int>(
                         value: selectedHour,
                         items: List.generate(24, (i) {
-                          int hour = i + 1;
                           return DropdownMenuItem(
-                            value: hour,
-                            child: Text(hour.toString().padLeft(2, '0')),
+                            value: i,
+                            child: Text(i.toString().padLeft(2, '0')),
                           );
                         }),
                         onChanged: (value) {

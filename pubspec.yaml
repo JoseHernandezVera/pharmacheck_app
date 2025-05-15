@@ -28,6 +28,7 @@ flutter:
   assets:
     - assets/images/perfil.jpg
     - assets/images/salida.png
+    - assets/images/mapa.jpg
     - assets/images/logo_pildora.png
     - assets/sounds/parte1.mp3
     - assets/sounds/parte2.mp3
