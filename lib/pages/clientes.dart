@@ -291,7 +291,7 @@ class _ClientesPageState extends State<ClientesPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add),
-            label: 'Acciones',
+            label: 'Más remedios',
           ),
         ],
       ),
