@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
-//import 'pages/home.dart';
+import 'package:provider/provider.dart';
+import 'pages/user_data.dart';
 import 'pages/splash.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => UserData(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -16,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Storyboo',
         useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 3, 99, 179)),
       ),
       home: const SplashPage(),
     );
