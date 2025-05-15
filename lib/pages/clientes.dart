@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'map.dart';
 
 class ClientesPage extends StatefulWidget {
   final String name;
@@ -207,6 +208,23 @@ class _ClientesPageState extends State<ClientesPage> {
     );
   }
 
+  int _selectedIndex = 0;
+
+  void _onBottomNavTap(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    if (index == 0) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const MapPage()),
+      );
+    } else if (index == 1) {
+      _showActionChoiceDialog();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -263,9 +281,19 @@ class _ClientesPageState extends State<ClientesPage> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showActionChoiceDialog,
-        child: const Icon(Icons.add),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onBottomNavTap,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.map),
+            label: 'Donde vive',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add),
+            label: 'Acciones',
+          ),
+        ],
       ),
     );
   }

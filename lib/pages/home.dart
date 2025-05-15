@@ -1,8 +1,7 @@
+import 'profile.dart';
 import 'package:flutter/material.dart';
 import 'clientes.dart';
-import 'base_pages.dart';
-import 'package:provider/provider.dart';
-import 'package:pharmacheck/pages/user_data.dart';
+import 'remenber.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -13,10 +12,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String name = 'Usuario';
+  String email = 'usuario@ejemplo.com';
   final List<Map<String, String>> people = [
-    {'name': 'Juan Pérez', 'image': 'assets/images/perfil.jpg'},
-    {'name': 'Ana Torres', 'image': 'assets/images/perfil.jpg'},
-    {'name': 'Carlos Díaz', 'image': 'assets/images/perfil.jpg'},
+    {'name': 'Jonathan Catalan', 'image': 'assets/images/perfil.jpg'},
+    {'name': 'Fabian Arevalo', 'image': 'assets/images/perfil.jpg'},
+    {'name': 'Martin Bascuñan', 'image': 'assets/images/perfil.jpg'},
   ];
 
   void _addPerson(String name) {
@@ -58,17 +59,71 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Future<void> _goToHome() async {
+    Navigator.pop(context);
+    await Future.delayed(const Duration(milliseconds: 250));
+    if (!mounted) return;
+  }
+
+  Future<void> _goToProfile() async {
+    Navigator.pop(context);
+    await Future.delayed(const Duration(milliseconds: 250));
+    if (!mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const ProfilePage()),
+    );
+  }
+
+  Future<void> _goToRemember() async {
+    Navigator.pop(context);
+    await Future.delayed(const Duration(milliseconds: 250));
+    if (!mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RemenberPage()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              decoration: const BoxDecoration(color: Color.fromARGB(255, 3, 99, 179)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.account_circle, size: 64, color: Colors.white),
+                  const SizedBox(height: 8),
+                  Text(name, style: const TextStyle(color: Colors.white, fontSize: 18)),
+                  Text(email, style: const TextStyle(color: Colors.white70)),
+                ],
+              ),
+            ),
+            ListTile(
+              title: const Text("Inicio"),
+              onTap: _goToHome,
+            ),
+            ListTile(
+              title: const Text("Perfil"),
+              onTap: _goToProfile,
+            ),
+            ListTile(
+              title: const Text("Recordar"),
+              onTap: _goToRemember,
+            ),
+          ],
+        ),
+      ),
       backgroundColor: const Color.fromARGB(255, 110, 179, 235),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 3, 99, 179),
-      ),
-      drawer: Consumer<UserData>(
-        builder: (context, userData, child) {
-          return BasePage(title: widget.title);
-        },
       ),
       body: Column(
         children: [

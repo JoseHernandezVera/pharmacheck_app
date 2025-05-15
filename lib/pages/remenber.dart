@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'base_pages.dart';
-import 'user_data.dart';
+import 'profile.dart';
+import 'home.dart';
 
-class RememberPage extends StatelessWidget {
-  const RememberPage({super.key});
+class RemenberPage extends StatelessWidget {
+  const RemenberPage({super.key});
 
-  final List<String> noticias = const [
+  static const List<String> noticias = [
     "En Cruz Verde hay descuento del 40% en paracetamol",
     "Campaña de vacunación contra la influenza hasta el 30 de junio",
     "Nuevo horario en farmacias: abiertas hasta las 10 pm",
@@ -16,9 +15,58 @@ class RememberPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userData = Provider.of<UserData>(context);
+    final String userData = "Usuario";
 
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            const DrawerHeader(
+              decoration: BoxDecoration(color: Color.fromARGB(255, 3, 99, 179)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.account_circle, size: 64, color: Colors.white),
+                  SizedBox(height: 8),
+                  Text("Usuario", style: TextStyle(color: Colors.white, fontSize: 18)),
+                  Text("usuario@ejemplo.com", style: TextStyle(color: Colors.white70)),
+                ],
+              ),
+            ),
+            ListTile(
+              title: const Text("Inicio"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Inicio')),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text("Perfil"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
+              },
+            ),
+            ListTile(
+              title: const Text("Recordar"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RemenberPage()),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
       backgroundColor: const Color.fromARGB(255, 110, 179, 235),
       appBar: AppBar(
         title: const Text(
@@ -28,7 +76,6 @@ class RememberPage extends StatelessWidget {
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 3, 99, 179),
       ),
-      drawer: BasePage(title: 'Remember'),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: noticias.length,
@@ -41,7 +88,7 @@ class RememberPage extends StatelessWidget {
                 noticias[index],
                 style: const TextStyle(fontSize: 18),
               ),
-              subtitle: Text("Hola, ${userData.name}"),
+              subtitle: Text("Hola, $userData"),
             ),
           );
         },

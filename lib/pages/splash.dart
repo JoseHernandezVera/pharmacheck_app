@@ -46,10 +46,12 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
     _scaleController.forward();
 
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const MyHomePage(title: 'Home')),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MyHomePage(title: 'Home')),
+        );
+      }
     });
   }
 
