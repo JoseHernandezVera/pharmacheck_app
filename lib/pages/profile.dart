@@ -1,29 +1,46 @@
 import 'package:flutter/material.dart';
-import 'home.dart';
+import 'package:provider/provider.dart';
+import '../providers/user_provider.dart';
+import '../models/model_drawer.dart';
 import 'remenber.dart';
-class ProfilePage extends StatefulWidget {
+import 'home.dart';
+
+class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
-
-class _ProfilePageState extends State<ProfilePage> {
-  String name = 'Usuario';
-  String email = 'usuario@ejemplo.com';
-  String birthdate = '11/08/2003';
-  String phone = '123456789';
-
-  void _editField(String title, String value, Function(String) onSave) {
+  void _editField(String title, String value, Function(String) onSave, BuildContext context, 
+      {bool isEmail = false, bool isPhone = false}) {
     final TextEditingController controller = TextEditingController(text: value);
+    final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text('Editar $title'),
-        content: TextField(
-          controller: controller,
-          decoration: InputDecoration(labelText: title),
+        content: Form(
+          key: formKey,
+          child: TextFormField(
+            controller: controller,
+            decoration: InputDecoration(labelText: title),
+            keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
+            maxLength: isPhone ? 15 : null,
+            validator: (val) {
+              if (val == null || val.isEmpty) {
+                return 'Este campo es obligatorio';
+              }
+              if (isEmail) {
+                if (!RegExp(r'^[\w-\.]+@(gmail|hotmail|outlook)\.com$').hasMatch(val)) {
+                  return 'Ingrese un correo válido';
+                }
+              }
+              if (isPhone) {
+                if (!RegExp(r'^[0-9]+$').hasMatch(val)) {
+                  return 'Solo se permiten números';
+                }
+              }
+              return null;
+            },
+          ),
         ),
         actions: [
           TextButton(
@@ -32,8 +49,12 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (controller.text.isNotEmpty) {
-                onSave(controller.text);
+              if (formKey.currentState!.validate()) {
+                String newValue = controller.text;
+                if (isPhone && newValue.length > 15) {
+                  newValue = '${newValue.substring(0, 12)}...';
+                }
+                onSave(newValue);
                 Navigator.pop(context);
               }
             },
@@ -44,78 +65,35 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Future<void> _goToHome() async {
-    Navigator.pop(context);
-    await Future.delayed(const Duration(milliseconds: 250));
-    if (!mounted) return;
-    if (ModalRoute.of(context)?.settings.name != '/home') {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Inicio')),
-      );
+  String _formatPhone(String phone) {
+    if (phone.length > 15) {
+      return '${phone.substring(0, 12)}...';
     }
-  }
-
-  Future<void> _goToProfile() async {
-    Navigator.pop(context);
-    await Future.delayed(const Duration(milliseconds: 250));
-    if (!mounted) return;
-  }
-
-  Future<void> _goToRemember() async {
-    Navigator.pop(context);
-    await Future.delayed(const Duration(milliseconds: 250));
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const RemenberPage()),
-    );
+    return phone;
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    final userProvider = Provider.of<UserProvider>(context);
+    final user = userProvider.user;
 
     final avatarSize = screenWidth * 0.35;
     final fontSizeText = screenWidth * 0.045;
     final fontSizeButton = screenWidth * 0.04;
 
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              decoration: const BoxDecoration(color: Color.fromARGB(255, 3, 99, 179)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Icon(Icons.account_circle, size: 64, color: Colors.white),
-                  const SizedBox(height: 8),
-                  Text(name, style: const TextStyle(color: Colors.white, fontSize: 18)),
-                  Text(email, style: const TextStyle(color: Colors.white70)),
-                ],
-              ),
-            ),
-            ListTile(
-              title: const Text("Inicio"),
-              onTap: _goToHome,
-            ),
-            ListTile(
-              title: const Text("Perfil"),
-              onTap: _goToProfile,
-            ),
-            ListTile(
-              title: const Text("Recordar"),
-              onTap: _goToRemember,
-            ),
-          ],
-        ),
-      ),
+      drawer: const ModelDrawer(),
       backgroundColor: const Color.fromARGB(255, 110, 179, 235),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 3, 99, 179),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, size: 32, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -123,7 +101,8 @@ class _ProfilePageState extends State<ProfilePage> {
             Container(
               color: const Color.fromARGB(255, 3, 99, 179),
               width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: screenHeight * 0.04, horizontal: screenWidth * 0.04),
+              padding: EdgeInsets.symmetric(
+                  vertical: screenHeight * 0.04, horizontal: screenWidth * 0.04),
               child: Center(
                 child: ClipOval(
                   child: Image.asset(
@@ -138,7 +117,8 @@ class _ProfilePageState extends State<ProfilePage> {
             Center(
               child: Card(
                 elevation: 6,
-                margin: EdgeInsets.symmetric(vertical: screenHeight * 0.03, horizontal: screenWidth * 0.05),
+                margin: EdgeInsets.symmetric(
+                    vertical: screenHeight * 0.03, horizontal: screenWidth * 0.05),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
@@ -148,59 +128,72 @@ class _ProfilePageState extends State<ProfilePage> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Text(
-                        'Nombre: $name',
+                        'Nombre: ${user.name}',
                         style: TextStyle(fontSize: fontSizeText),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: screenHeight * 0.008),
                       ElevatedButton(
-                        onPressed: () => _editField('Nombre', name, (val) {
-                          setState(() => name = val);
-                        }),
-                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
-                        child: Text('Editar nombre', style: TextStyle(fontSize: fontSizeButton)),
+                        onPressed: () => _editField('Nombre', user.name, (val) {
+                          userProvider.updateUser(name: val);
+                        }, context),
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12)),
+                        child: Text('Editar nombre',
+                            style: TextStyle(fontSize: fontSizeButton)),
                       ),
                       SizedBox(height: screenHeight * 0.025),
                       Text(
-                        'Correo: $email',
+                        'Correo: ${user.email}',
                         style: TextStyle(fontSize: fontSizeText),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: screenHeight * 0.008),
                       ElevatedButton(
-                        onPressed: () => _editField('Correo', email, (val) {
-                          setState(() => email = val);
-                        }),
-                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
-                        child: Text('Editar correo', style: TextStyle(fontSize: fontSizeButton)),
+                        onPressed: () => _editField('Correo', user.email, (val) {
+                          userProvider.updateUser(email: val);
+                        }, context, isEmail: true),
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12)),
+                        child: Text('Editar correo',
+                            style: TextStyle(fontSize: fontSizeButton)),
                       ),
                       SizedBox(height: screenHeight * 0.025),
                       Text(
-                        'Fecha de nacimiento: $birthdate',
+                        'Fecha de nacimiento: ${user.birthdate}',
                         style: TextStyle(fontSize: fontSizeText),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: screenHeight * 0.008),
                       ElevatedButton(
-                        onPressed: () => _editField('Fecha de nacimiento', birthdate, (val) {
-                          setState(() => birthdate = val);
-                        }),
-                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
-                        child: Text('Editar fecha de nacimiento', style: TextStyle(fontSize: fontSizeButton)),
+                        onPressed: () => _editField(
+                            'Fecha de nacimiento', user.birthdate, (val) {
+                          userProvider.updateUser(birthdate: val);
+                        }, context),
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12)),
+                        child: Text('Editar fecha de nacimiento',
+                            style: TextStyle(fontSize: fontSizeButton)),
                       ),
                       SizedBox(height: screenHeight * 0.025),
                       Text(
-                        'Teléfono: $phone',
+                        'Teléfono: ${_formatPhone(user.phone)}',
                         style: TextStyle(fontSize: fontSizeText),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: screenHeight * 0.008),
                       ElevatedButton(
-                        onPressed: () => _editField('Teléfono', phone, (val) {
-                          setState(() => phone = val);
-                        }),
-                        style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12)),
-                        child: Text('Editar teléfono', style: TextStyle(fontSize: fontSizeButton)),
+                        onPressed: () => _editField('Teléfono', user.phone, (val) {
+                          userProvider.updateUser(phone: val);
+                        }, context, isPhone: true),
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12)),
+                        child: Text('Editar teléfono',
+                            style: TextStyle(fontSize: fontSizeButton)),
                       ),
                     ],
                   ),

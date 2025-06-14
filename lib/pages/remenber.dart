@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/user_provider.dart';
+import '../models/model_drawer.dart';
 import 'profile.dart';
 import 'home.dart';
 
@@ -15,58 +18,11 @@ class RemenberPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String userData = "Usuario";
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userData = userProvider.user.name;
 
     return Scaffold(
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(color: Color.fromARGB(255, 3, 99, 179)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.account_circle, size: 64, color: Colors.white),
-                  SizedBox(height: 8),
-                  Text("Usuario", style: TextStyle(color: Colors.white, fontSize: 18)),
-                  Text("usuario@ejemplo.com", style: TextStyle(color: Colors.white70)),
-                ],
-              ),
-            ),
-            ListTile(
-              title: const Text("Inicio"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Inicio')),
-                );
-              },
-            ),
-            ListTile(
-              title: const Text("Perfil"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()),
-                );
-              },
-            ),
-            ListTile(
-              title: const Text("Recordar"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RemenberPage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: const ModelDrawer(),
       backgroundColor: const Color.fromARGB(255, 110, 179, 235),
       appBar: AppBar(
         title: const Text(
@@ -75,6 +31,12 @@ class RemenberPage extends StatelessWidget {
         ),
         centerTitle: true,
         backgroundColor: const Color.fromARGB(255, 3, 99, 179),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, size: 32, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
       ),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),

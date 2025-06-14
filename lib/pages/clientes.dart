@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/remedies_provider.dart';
+import '../models/model_drawer.dart';
 import 'map.dart';
+import 'profile.dart';
+import 'home.dart';
+import 'remenber.dart';
 
 class ClientesPage extends StatefulWidget {
   final String name;
@@ -11,26 +17,8 @@ class ClientesPage extends StatefulWidget {
 }
 
 class _ClientesPageState extends State<ClientesPage> {
-  final List<Map<String, dynamic>> remedies = [];
-
   int? _selectedRemedyIndexForDeletion;
-
-  void _addRemedy(String name, String time) {
-    setState(() {
-      remedies.add({
-        'name': name,
-        'time': time,
-        'isTaken': false,
-      });
-    });
-  }
-
-  void _deleteRemedy(int index) {
-    setState(() {
-      remedies.removeAt(index);
-      _selectedRemedyIndexForDeletion = null;
-    });
-  }
+  int _selectedIndex = 0;
 
   void _showAddRemedyDialog() {
     final TextEditingController nameController = TextEditingController();
@@ -109,7 +97,8 @@ class _ClientesPageState extends State<ClientesPage> {
                       ? () {
                           String formattedTime =
                               "${selectedHour.toString().padLeft(2, '0')}:${selectedMinute.toString().padLeft(2, '0')}";
-                          _addRemedy(nameController.text.trim(), formattedTime);
+                          Provider.of<RemediesProvider>(context, listen: false)
+                              .addRemedy(widget.name, nameController.text.trim(), formattedTime);
                           Navigator.pop(context);
                         }
                       : null,
@@ -125,6 +114,8 @@ class _ClientesPageState extends State<ClientesPage> {
 
   void _showDeleteRemedyDialog() {
     _selectedRemedyIndexForDeletion = null;
+    final remediesProvider = Provider.of<RemediesProvider>(context, listen: false);
+    final remedies = remediesProvider.getRemediesForPerson(widget.name);
 
     showDialog(
       context: context,
@@ -144,8 +135,8 @@ class _ClientesPageState extends State<ClientesPage> {
                           final remedy = remedies[index];
                           final isSelected = _selectedRemedyIndexForDeletion == index;
                           return ListTile(
-                            title: Text(remedy['name']),
-                            subtitle: Text('Hora: ${remedy['time']}'),
+                            title: Text(remedy.name),
+                            subtitle: Text('Hora: ${remedy.time}'),
                             tileColor: isSelected ? Colors.red[100] : null,
                             onTap: () {
                               setStateDialog(() {
@@ -165,7 +156,7 @@ class _ClientesPageState extends State<ClientesPage> {
                   onPressed: _selectedRemedyIndexForDeletion == null
                       ? null
                       : () {
-                          _deleteRemedy(_selectedRemedyIndexForDeletion!);
+                          remediesProvider.removeRemedy(widget.name, _selectedRemedyIndexForDeletion!);
                           Navigator.pop(context);
                         },
                   style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
@@ -208,8 +199,6 @@ class _ClientesPageState extends State<ClientesPage> {
     );
   }
 
-  int _selectedIndex = 0;
-
   void _onBottomNavTap(int index) {
     setState(() {
       _selectedIndex = index;
@@ -227,13 +216,24 @@ class _ClientesPageState extends State<ClientesPage> {
 
   @override
   Widget build(BuildContext context) {
+    final remediesProvider = Provider.of<RemediesProvider>(context);
+    final remedies = remediesProvider.getRemediesForPerson(widget.name);
+
     return Scaffold(
+      drawer: const ModelDrawer(),
       backgroundColor: const Color.fromARGB(255, 110, 179, 235),
       appBar: AppBar(
         toolbarHeight: 150,
         backgroundColor: const Color.fromARGB(255, 3, 99, 179),
+        leading: Builder(
+          builder: (context) => IconButton(
+            icon: const Icon(Icons.menu, size: 32, color: Colors.white),
+            onPressed: () => Scaffold.of(context).openDrawer(),
+          ),
+        ),
         centerTitle: true,
         title: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircleAvatar(
               radius: 40,
@@ -243,39 +243,95 @@ class _ClientesPageState extends State<ClientesPage> {
             Text(
               widget.name,
               style: const TextStyle(
-                fontSize: 40,
+                fontSize: 30,
                 color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
       ),
       body: remedies.isEmpty
-          ? const Center(child: Text('No hay remedios registrados.'))
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'No hay remedios registrados',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: _showAddRemedyDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: const Text(
+                      'Agregar Primer Remedio',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 3, 99, 179),
+                        fontSize: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
           : ListView.builder(
+              padding: const EdgeInsets.only(top: 20),
               itemCount: remedies.length,
               itemBuilder: (context, index) {
                 final remedy = remedies[index];
-                final isTaken = remedy['isTaken'] as bool;
+                final isTaken = remedy.isTaken;
 
                 return Container(
-                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                  margin: const EdgeInsets.symmetric(
+                      vertical: 8, horizontal: 16),
                   decoration: BoxDecoration(
-                    color: isTaken ? Colors.green[200] : const Color.fromARGB(255, 255, 255, 255),
-                    border: Border.all(color: Colors.black, width: 3),
-                    borderRadius: BorderRadius.circular(8),
+                    color: isTaken
+                        ? Colors.green[200]
+                        : const Color.fromARGB(255, 255, 255, 255),
+                    border: Border.all(color: Colors.black, width: 2),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black,
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
                   child: ListTile(
-                    leading: const Icon(Icons.medication),
-                    title: Text(remedy['name']),
-                    subtitle: Text('Hora: ${remedy['time']}'),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    leading: const Icon(Icons.medication,
+                        size: 36, color: Colors.blue),
+                    title: Text(
+                      remedy.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: Text(
+                      'Hora: ${remedy.time}',
+                      style: const TextStyle(fontSize: 16),
+                    ),
                     trailing: Checkbox(
                       value: isTaken,
                       onChanged: (value) {
-                        setState(() {
-                          remedies[index]['isTaken'] = value!;
-                        });
+                        remediesProvider.toggleRemedyStatus(widget.name, index);
                       },
+                      activeColor: Colors.green,
                     ),
                   ),
                 );
@@ -284,13 +340,16 @@ class _ClientesPageState extends State<ClientesPage> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onBottomNavTap,
+        backgroundColor: const Color.fromARGB(255, 3, 99, 179),
+        selectedItemColor: Colors.white,
+        unselectedItemColor: Colors.white70,
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.map),
+            icon: Icon(Icons.map, color: Colors.white),
             label: 'Donde vive',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add),
+            icon: Icon(Icons.add, color: Colors.white),
             label: 'Más remedios',
           ),
         ],
