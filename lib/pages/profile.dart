@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../models/model_drawer.dart';
-import 'remenber.dart';
-import 'home.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});

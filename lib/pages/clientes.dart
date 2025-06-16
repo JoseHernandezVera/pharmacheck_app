@@ -3,9 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/remedies_provider.dart';
 import '../models/model_drawer.dart';
 import 'map.dart';
-import 'profile.dart';
-import 'home.dart';
-import 'remenber.dart';
 
 class ClientesPage extends StatefulWidget {
   final String name;

@@ -14,11 +14,13 @@ dependencies:
   audioplayers: ^6.4.0
   cupertino_icons: ^1.0.8
   provider: ^6.1.5
+  change_app_package_name: ^1.5.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.4
 
 
 flutter:
@@ -45,3 +47,9 @@ flutter:
     - family: Lato
       fonts:
         - asset: assets/fonts/Lato-Black.ttf
+
+
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: false
+  image_path: "assets/images/logo_pildora.png"

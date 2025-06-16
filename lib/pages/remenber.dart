@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/user_provider.dart';
 import '../models/model_drawer.dart';
-import 'profile.dart';
-import 'home.dart';
 
 class RemenberPage extends StatelessWidget {
   const RemenberPage({super.key});

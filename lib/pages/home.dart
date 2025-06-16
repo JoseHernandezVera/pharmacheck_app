@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/people_provider.dart';
 import 'clientes.dart';
 import '../models/model_drawer.dart';
-import 'profile.dart';
-import 'remenber.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
