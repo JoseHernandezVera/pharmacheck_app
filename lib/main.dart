@@ -4,6 +4,8 @@ import 'pages/splash.dart';
 import 'providers/user_provider.dart';
 import 'providers/people_provider.dart';
 import 'providers/remedies_provider.dart';
+import 'themes/theme.dart';
+import 'themes/util.dart';
 
 void main() {
   runApp(
@@ -23,14 +25,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = createTextTheme(context, "Roboto", "Roboto Condensed");
+    final materialTheme = MaterialTheme(textTheme);
+
     return MaterialApp(
       title: 'PharmaCheck',
-      theme: ThemeData(
-        fontFamily: 'Lato',
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 3, 99, 179)),
-      ),
+      theme: materialTheme.light(),
+      darkTheme: materialTheme.dark(),
       home: const SplashPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

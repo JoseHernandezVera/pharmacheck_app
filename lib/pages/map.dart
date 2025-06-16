@@ -10,18 +10,26 @@ class MapPage extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       drawer: const ModelDrawer(),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Mapa',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
-        backgroundColor: const Color.fromARGB(255, 3, 99, 179),
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, size: 32),
+            icon: Icon(
+              Icons.menu,
+              size: 32,
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -29,11 +37,27 @@ class MapPage extends StatelessWidget {
       body: Center(
         child: Padding(
           padding: EdgeInsets.all(screenWidth * 0.05),
-          child: Image.asset(
-            'assets/images/mapa.jpg',
-            width: screenWidth * 0.9,
-            height: screenHeight * 0.7,
-            fit: BoxFit.contain,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).colorScheme.shadow,
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                'assets/images/mapa.jpg',
+                width: screenWidth * 0.9,
+                height: screenHeight * 0.7,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
         ),
       ),

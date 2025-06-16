@@ -14,14 +14,33 @@ class ProfilePage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Editar $title'),
+        title: Text(
+          'Editar $title',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         content: Form(
           key: formKey,
           child: TextFormField(
             controller: controller,
-            decoration: InputDecoration(labelText: title),
+            decoration: InputDecoration(
+              labelText: title,
+              labelStyle: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              enabledBorder: UnderlineInputBorder(
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+              ),
+            ),
             keyboardType: isPhone ? TextInputType.phone : TextInputType.text,
             maxLength: isPhone ? 15 : null,
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
             validator: (val) {
               if (val == null || val.isEmpty) {
                 return 'Este campo es obligatorio';
@@ -43,7 +62,12 @@ class ProfilePage extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(
+              'Cancelar',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
           ),
           ElevatedButton(
             onPressed: () {
@@ -56,6 +80,10 @@ class ProfilePage extends StatelessWidget {
                 Navigator.pop(context);
               }
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            ),
             child: const Text('Guardar'),
           ),
         ],
@@ -83,12 +111,16 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       drawer: const ModelDrawer(),
-      backgroundColor: const Color.fromARGB(255, 110, 179, 235),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 3, 99, 179),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, size: 32, color: Colors.white),
+            icon: Icon(
+              Icons.menu, 
+              size: 32, 
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -97,7 +129,7 @@ class ProfilePage extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              color: const Color.fromARGB(255, 3, 99, 179),
+              color: Theme.of(context).colorScheme.primary,
               width: double.infinity,
               padding: EdgeInsets.symmetric(
                   vertical: screenHeight * 0.04, horizontal: screenWidth * 0.04),
@@ -120,6 +152,7 @@ class ProfilePage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
                 ),
+                color: Theme.of(context).colorScheme.surfaceContainer,
                 child: Padding(
                   padding: EdgeInsets.all(screenWidth * 0.05),
                   child: Column(
@@ -127,7 +160,10 @@ class ProfilePage extends StatelessWidget {
                     children: [
                       Text(
                         'Nombre: ${user.name}',
-                        style: TextStyle(fontSize: fontSizeText),
+                        style: TextStyle(
+                          fontSize: fontSizeText,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: screenHeight * 0.008),
@@ -136,15 +172,23 @@ class ProfilePage extends StatelessWidget {
                           userProvider.updateUser(name: val);
                         }, context),
                         style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12)),
-                        child: Text('Editar nombre',
-                            style: TextStyle(fontSize: fontSizeButton)),
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                        ),
+                        child: Text(
+                          'Editar nombre',
+                          style: TextStyle(fontSize: fontSizeButton),
+                        ),
                       ),
                       SizedBox(height: screenHeight * 0.025),
                       Text(
                         'Correo: ${user.email}',
-                        style: TextStyle(fontSize: fontSizeText),
+                        style: TextStyle(
+                          fontSize: fontSizeText,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: screenHeight * 0.008),
@@ -153,15 +197,23 @@ class ProfilePage extends StatelessWidget {
                           userProvider.updateUser(email: val);
                         }, context, isEmail: true),
                         style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12)),
-                        child: Text('Editar correo',
-                            style: TextStyle(fontSize: fontSizeButton)),
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                        ),
+                        child: Text(
+                          'Editar correo',
+                          style: TextStyle(fontSize: fontSizeButton),
+                        ),
                       ),
                       SizedBox(height: screenHeight * 0.025),
                       Text(
                         'Fecha de nacimiento: ${user.birthdate}',
-                        style: TextStyle(fontSize: fontSizeText),
+                        style: TextStyle(
+                          fontSize: fontSizeText,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: screenHeight * 0.008),
@@ -171,15 +223,23 @@ class ProfilePage extends StatelessWidget {
                           userProvider.updateUser(birthdate: val);
                         }, context),
                         style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12)),
-                        child: Text('Editar fecha de nacimiento',
-                            style: TextStyle(fontSize: fontSizeButton)),
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                        ),
+                        child: Text(
+                          'Editar fecha de nacimiento',
+                          style: TextStyle(fontSize: fontSizeButton),
+                        ),
                       ),
                       SizedBox(height: screenHeight * 0.025),
                       Text(
                         'Teléfono: ${_formatPhone(user.phone)}',
-                        style: TextStyle(fontSize: fontSizeText),
+                        style: TextStyle(
+                          fontSize: fontSizeText,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       SizedBox(height: screenHeight * 0.008),
@@ -188,10 +248,15 @@ class ProfilePage extends StatelessWidget {
                           userProvider.updateUser(phone: val);
                         }, context, isPhone: true),
                         style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 24, vertical: 12)),
-                        child: Text('Editar teléfono',
-                            style: TextStyle(fontSize: fontSizeButton)),
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                          foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 24, vertical: 12),
+                        ),
+                        child: Text(
+                          'Editar teléfono',
+                          style: TextStyle(fontSize: fontSizeButton),
+                        ),
                       ),
                     ],
                   ),

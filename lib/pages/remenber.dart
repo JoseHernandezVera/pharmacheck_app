@@ -21,17 +21,23 @@ class RemenberPage extends StatelessWidget {
 
     return Scaffold(
       drawer: const ModelDrawer(),
-      backgroundColor: const Color.fromARGB(255, 110, 179, 235),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Noticias',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 3, 99, 179),
+        backgroundColor: Theme.of(context).colorScheme.primary,
         leading: Builder(
           builder: (context) => IconButton(
-            icon: const Icon(Icons.menu, size: 32, color: Colors.white),
+            icon: Icon(
+              Icons.menu, 
+              size: 32, 
+              color: Theme.of(context).colorScheme.onPrimary,
+            ),
             onPressed: () => Scaffold.of(context).openDrawer(),
           ),
         ),
@@ -42,13 +48,33 @@ class RemenberPage extends StatelessWidget {
         itemBuilder: (context, index) {
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 8),
+            color: Theme.of(context).colorScheme.surfaceContainer,
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: ListTile(
-              leading: const Icon(Icons.article_outlined, color: Colors.blue),
+              leading: Icon(
+                Icons.article_outlined,
+                color: Theme.of(context).colorScheme.primary,
+              ),
               title: Text(
                 noticias[index],
-                style: const TextStyle(fontSize: 18),
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-              subtitle: Text("Hola, $userData"),
+              subtitle: Text(
+                "Hola, $userData",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
             ),
           );
         },

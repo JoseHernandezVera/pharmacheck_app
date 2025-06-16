@@ -12,38 +12,56 @@ class ModelDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
-    String _truncateText(String text, int maxLength) {
+    String truncateText(String text, int maxLength) {
       if (text.length <= maxLength) return text;
       return '${text.substring(0, maxLength)}...';
     }
 
     return Drawer(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
           UserAccountsDrawerHeader(
             accountName: Text(
-              _truncateText(userProvider.user.name, 10),
-              style: const TextStyle(
+              truncateText(userProvider.user.name, 10),
+              style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onPrimary,
               ),
             ),
             accountEmail: Text(
-              _truncateText(userProvider.user.email, 15),
-              style: const TextStyle(fontSize: 16),
+              truncateText(userProvider.user.email, 15),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onPrimary,
+              ),
             ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.account_circle, size: 60, color: Colors.blue),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              child: Icon(
+                Icons.account_circle, 
+                size: 60, 
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
-            decoration: const BoxDecoration(
-              color: Color.fromARGB(255, 3, 99, 179),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.home, color: Colors.blue),
-            title: const Text("Inicio", style: TextStyle(fontSize: 18)),
+            leading: Icon(
+              Icons.home,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(
+              "Inicio", 
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacement(
@@ -53,8 +71,17 @@ class ModelDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.person, color: Colors.blue),
-            title: const Text("Perfil", style: TextStyle(fontSize: 18)),
+            leading: Icon(
+              Icons.person,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(
+              "Perfil", 
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacement(
@@ -64,8 +91,17 @@ class ModelDrawer extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.notifications, color: Colors.blue),
-            title: const Text("Recordar", style: TextStyle(fontSize: 18)),
+            leading: Icon(
+              Icons.notifications,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(
+              "Recordar", 
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
             onTap: () {
               Navigator.pop(context);
               Navigator.pushReplacement(

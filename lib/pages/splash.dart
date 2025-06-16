@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
-import 'home.dart';
+import 'login.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -49,7 +49,7 @@ class _SplashPageState extends State<SplashPage> with TickerProviderStateMixin {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const MyHomePage(title: 'Home')),
+          MaterialPageRoute(builder: (_) => const LoginPage()),
         );
       }
     });
