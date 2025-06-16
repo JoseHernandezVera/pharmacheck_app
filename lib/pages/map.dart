@@ -18,6 +18,7 @@ class MapPage extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color.fromARGB(255, 3, 99, 179),
+        iconTheme: const IconThemeData(color: Colors.white),
         leading: Builder(
           builder: (context) => IconButton(
             icon: const Icon(Icons.menu, size: 32),
