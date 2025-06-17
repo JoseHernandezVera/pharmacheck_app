@@ -72,7 +72,7 @@ class ModelDrawer extends StatelessWidget {
               Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Inicio')),
+                MaterialPageRoute(builder: (context) => const MyHomePage()),
               );
             },
           ),

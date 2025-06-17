@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
       if (!mounted) return;
       Navigator.pushReplacement(
         currentContext,
-        MaterialPageRoute(builder: (context) => const MyHomePage(title: 'Inicio')),
+        MaterialPageRoute(builder: (context) => const MyHomePage()),
       );
     } catch (e) {
       if (!mounted) return;

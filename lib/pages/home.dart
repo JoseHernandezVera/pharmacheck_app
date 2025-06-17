@@ -11,8 +11,7 @@ import 'clientes.dart';
 import '../models/model_drawer.dart';
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -376,7 +375,7 @@ class _MyHomePageState extends State<MyHomePage> {
       drawer: const ModelDrawer(),
       appBar: AppBar(
         title: Text(
-          widget.title,
+          '',
           style: TextStyle(
             color: Theme.of(context).colorScheme.onPrimary,
           ),
@@ -394,20 +393,6 @@ class _MyHomePageState extends State<MyHomePage> {
             );
           },
         ),
-        actions: [
-          IconButton(
-            icon: Icon(
-              Icons.search, 
-              color: Theme.of(context).colorScheme.onPrimary,
-            ),
-            onPressed: () {
-              showSearch(
-                context: context,
-                delegate: _PersonSearchDelegate(peopleProvider.people),
-              );
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -606,75 +591,6 @@ class _MyHomePageState extends State<MyHomePage> {
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
         child: const Icon(Icons.person_add, size: 32),
       ),
-    );
-  }
-}
-
-class _PersonSearchDelegate extends SearchDelegate {
-  final List<Person> people;
-
-  _PersonSearchDelegate(this.people);
-
-  @override
-  List<Widget> buildActions(BuildContext context) {
-    return [
-      IconButton(
-        icon: Icon(
-          Icons.clear,
-          color: Theme.of(context).colorScheme.onSurface,
-        ),
-        onPressed: () => query = '',
-      ),
-    ];
-  }
-
-  @override
-  Widget buildLeading(BuildContext context) {
-    return IconButton(
-      icon: Icon(
-        Icons.arrow_back,
-        color: Theme.of(context).colorScheme.onSurface,
-      ),
-      onPressed: () => close(context, null),
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    return _buildSearchResults();
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    return _buildSearchResults();
-  }
-
-  Widget _buildSearchResults() {
-    final results = query.isEmpty
-        ? people
-        : people.where((person) => person.name.toLowerCase().contains(query.toLowerCase())).toList();
-
-    return ListView.builder(
-      itemCount: results.length,
-      itemBuilder: (BuildContext context, int index) {
-        final person = results[index];
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundImage: person.imagePath.startsWith('assets/')
-                ? AssetImage(person.imagePath) as ImageProvider
-                : FileImage(File(person.imagePath)),
-          ),
-          title: Text(
-            person.name,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-          ),
-          onTap: () {
-            close(context, person);
-          },
-        );
-      },
     );
   }
 }
