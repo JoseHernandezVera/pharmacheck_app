@@ -3,11 +3,17 @@ import 'package:provider/provider.dart';
 import '../providers/remedies_provider.dart';
 import '../models/model_drawer.dart';
 import 'map.dart';
+import 'dart:io';
 
 class ClientesPage extends StatefulWidget {
   final String name;
+  final String imagePath;
 
-  const ClientesPage({super.key, required this.name});
+  const ClientesPage({
+    super.key, 
+    required this.name,
+    required this.imagePath,
+  });
 
   @override
   State<ClientesPage> createState() => _ClientesPageState();
@@ -16,6 +22,13 @@ class ClientesPage extends StatefulWidget {
 class _ClientesPageState extends State<ClientesPage> {
   int? _selectedRemedyIndexForDeletion;
   int _selectedIndex = 0;
+  late String _currentImagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentImagePath = widget.imagePath;
+  }
 
   void _showAddRemedyDialog() {
     final TextEditingController nameController = TextEditingController();
@@ -321,9 +334,11 @@ class _ClientesPageState extends State<ClientesPage> {
         title: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircleAvatar(
+            CircleAvatar(
               radius: 40,
-              backgroundImage: AssetImage('assets/images/perfil.jpg'),
+              backgroundImage: _currentImagePath.startsWith('assets/')
+                  ? AssetImage(_currentImagePath) as ImageProvider
+                  : FileImage(File(_currentImagePath)),
             ),
             const SizedBox(height: 8),
             Text(

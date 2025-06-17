@@ -4,13 +4,14 @@ import '../providers/user_provider.dart';
 import '../pages/home.dart';
 import '../pages/profile.dart';
 import '../pages/remenber.dart';
+import 'dart:io';
 
 class ModelDrawer extends StatelessWidget {
   const ModelDrawer({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final userProvider = Provider.of<UserProvider>(context);
 
     String truncateText(String text, int maxLength) {
       if (text.length <= maxLength) return text;
@@ -40,11 +41,16 @@ class ModelDrawer extends StatelessWidget {
             ),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Theme.of(context).colorScheme.surface,
-              child: Icon(
-                Icons.account_circle, 
-                size: 60, 
-                color: Theme.of(context).colorScheme.primary,
-              ),
+              backgroundImage: userProvider.user.imageUrl.startsWith('assets/')
+                  ? AssetImage(userProvider.user.imageUrl) as ImageProvider
+                  : FileImage(File(userProvider.user.imageUrl)),
+              child: userProvider.user.imageUrl.isEmpty
+                  ? Icon(
+                      Icons.account_circle, 
+                      size: 60, 
+                      color: Theme.of(context).colorScheme.primary,
+                    )
+                  : null,
             ),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,

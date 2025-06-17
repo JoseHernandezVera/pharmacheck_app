@@ -1,10 +1,86 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
 import '../providers/user_provider.dart';
 import '../models/model_drawer.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+  Future<String?> _pickImage({bool fromCamera = false}) async {
+    final pickedFile = await ImagePicker().pickImage(
+      source: fromCamera ? ImageSource.camera : ImageSource.gallery,
+      maxWidth: 500,
+      maxHeight: 500,
+      imageQuality: 90,
+    );
+
+    if (pickedFile != null) {
+      return pickedFile.path;
+    }
+    return null;
+  }
+
+  Future<void> _showImageSourceDialog(BuildContext context) async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    final result = await showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Seleccionar imagen',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: Icon(
+                  Icons.photo_library,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  'Galería',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context, 'gallery');
+                },
+              ),
+              ListTile(
+                leading: Icon(
+                  Icons.camera_alt,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                title: Text(
+                  'Cámara',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                onTap: () {
+                  Navigator.pop(context, 'camera');
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (result != null) {
+      final newImage = await _pickImage(fromCamera: result == 'camera');
+      if (newImage != null) {
+        userProvider.updateUser(imageUrl: newImage);
+      }
+    }
+  }
 
   void _editField(String title, String value, Function(String) onSave, BuildContext context, 
       {bool isEmail = false, bool isPhone = false}) {
@@ -134,12 +210,32 @@ class ProfilePage extends StatelessWidget {
               padding: EdgeInsets.symmetric(
                   vertical: screenHeight * 0.04, horizontal: screenWidth * 0.04),
               child: Center(
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/images/perfil.jpg',
-                    width: avatarSize,
-                    height: avatarSize,
-                    fit: BoxFit.cover,
+                child: GestureDetector(
+                  onTap: () => _showImageSourceDialog(context),
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      ClipOval(
+                        child: user.imageUrl.startsWith('assets/')
+                            ? Image.asset(
+                                user.imageUrl,
+                                width: avatarSize,
+                                height: avatarSize,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.file(
+                                File(user.imageUrl),
+                                width: avatarSize,
+                                height: avatarSize,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                      Icon(
+                        Icons.camera_alt,
+                        size: avatarSize * 0.3,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
                   ),
                 ),
               ),

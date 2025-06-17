@@ -1,6 +1,9 @@
 class Person {
   final String name;
-  final String image;
+  String imagePath;
 
-  Person({required this.name, required this.image});
+  Person({
+    required this.name,
+    required this.imagePath,
+  });
 }

@@ -166,18 +166,6 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-
-              TextButton(
-                onPressed: () {
-                },
-                child: Text(
-                  '¿No tienes una cuenta? Regístrate',
-                  style: TextStyle(
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
