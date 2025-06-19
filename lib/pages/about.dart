@@ -277,7 +277,7 @@ class _AboutPageState extends State<AboutPage> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 32, vertical: 16),
                       ),
-                      child: const Text('Enviar Feedback'),
+                      child: const Text('Enviar Respuestas'),
                     ),
                   ),
                   const SizedBox(height: 24),
