@@ -8,14 +8,19 @@ import 'providers/settings_provider.dart';
 import 'themes/theme.dart';
 import 'themes/util.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final settingsProvider = SettingsProvider();
+  await settingsProvider.loadPreferences();
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => PeopleProvider()),
         ChangeNotifierProvider(create: (_) => RemediesProvider()),
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider.value(value: settingsProvider),
       ],
       child: const MyApp(),
     ),

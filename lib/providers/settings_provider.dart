@@ -1,21 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 enum CardSize { small, medium, large }
 
 class SettingsProvider with ChangeNotifier {
   CardSize _cardSize = CardSize.medium;
-  ThemeMode _themeMode = ThemeMode.system;
+  ThemeMode _themeMode = ThemeMode.light;
+  late SharedPreferences _prefs;
 
   CardSize get cardSize => _cardSize;
   ThemeMode get themeMode => _themeMode;
 
+  Future<void> loadPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+    
+    final savedSize = _prefs.getString('cardSize');
+    if (savedSize != null) {
+      _cardSize = CardSize.values.firstWhere(
+        (e) => e.toString() == savedSize,
+        orElse: () => CardSize.medium,
+      );
+    }
+
+    final savedTheme = _prefs.getString('themeMode');
+    if (savedTheme != null) {
+      _themeMode = ThemeMode.values.firstWhere(
+        (e) => e.toString() == savedTheme,
+        orElse: () => ThemeMode.system,
+      );
+    }
+    
+    notifyListeners();
+  }
+
   void setCardSize(CardSize newSize) {
     _cardSize = newSize;
+    _prefs.setString('cardSize', newSize.toString());
     notifyListeners();
   }
 
   void setThemeMode(ThemeMode mode) {
     _themeMode = mode;
+    _prefs.setString('themeMode', mode.toString());
     notifyListeners();
   }
 

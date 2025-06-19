@@ -38,7 +38,7 @@ class SettingsPage extends StatelessWidget {
         padding: settings.cardPadding,
         children: [
           Text(
-            'Tamaño de las cosas:',
+            'Tamaño de los elementos:',
             style: TextStyle(
               fontSize: settings.titleFontSize,
               fontWeight: FontWeight.bold,
@@ -73,8 +73,6 @@ class SettingsPage extends StatelessWidget {
             currentMode: settings.themeMode,
             label: 'Tema claro',
             icon: Icons.light_mode,
-            onChanged: () => settings.setThemeMode(ThemeMode.light),
-            settings: settings,
           ),
           _buildThemeOption(
             context,
@@ -82,8 +80,6 @@ class SettingsPage extends StatelessWidget {
             currentMode: settings.themeMode,
             label: 'Tema oscuro',
             icon: Icons.dark_mode,
-            onChanged: () => settings.setThemeMode(ThemeMode.dark),
-            settings: settings,
           ),
           _buildThemeOption(
             context,
@@ -91,8 +87,6 @@ class SettingsPage extends StatelessWidget {
             currentMode: settings.themeMode,
             label: 'Sistema',
             icon: Icons.settings_suggest,
-            onChanged: () => settings.setThemeMode(ThemeMode.system),
-            settings: settings,
           ),
         ],
       ),
@@ -104,7 +98,7 @@ class SettingsPage extends StatelessWidget {
     required CardSize size,
     required String label,
   }) {
-    final settings = Provider.of<SettingsProvider>(context, listen: true);
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
     final isSelected = settings.cardSize == size;
 
     return ElevatedButton(
@@ -130,7 +124,7 @@ class SettingsPage extends StatelessWidget {
       child: Text(
         label,
         style: TextStyle(
-          fontSize: settings.subtitleFontSize,
+          fontSize: Provider.of<SettingsProvider>(context).subtitleFontSize,
         ),
       ),
     );
@@ -142,16 +136,16 @@ class SettingsPage extends StatelessWidget {
     required ThemeMode currentMode,
     required String label,
     required IconData icon,
-    required VoidCallback onChanged,
-    required SettingsProvider settings,
   }) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    
     return Card(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       elevation: 2,
       color: Theme.of(context).colorScheme.surfaceContainer,
       child: InkWell(
         borderRadius: BorderRadius.circular(4),
-        onTap: onChanged,
+        onTap: () => settings.setThemeMode(mode),
         child: Padding(
           padding: settings.cardPadding,
           child: Row(
