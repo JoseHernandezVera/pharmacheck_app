@@ -19,6 +19,7 @@ dependencies:
   image_picker: ^1.1.2
   path_provider: ^2.1.5
   path: ^1.9.1
+  url_launcher: ^6.1.5
 
 dev_dependencies:
   flutter_test:
@@ -38,6 +39,7 @@ flutter:
     - assets/images/logo_pildora.png
     - assets/sounds/parte1.mp3
     - assets/sounds/parte2.mp3
+    - assets/questions/questions.json
 
   fonts:
     - family: BarberChop

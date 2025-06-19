@@ -1,0 +1,102 @@
+{
+  "Usabilidad": [
+    {
+      "titulo": "Pregunta 1: ¿Qué tan intuitiva te resultó la navegación entre las diferentes secciones?",
+      "valor": 0,
+      "min": "0 estrellas: Muy confusa, no pude encontrar las secciones.",
+      "max": "5 estrellas: Extremadamente intuitiva, accedí a todo fácilmente."
+    },
+    {
+      "titulo": "Pregunta 2: ¿Cómo calificas el proceso de agregar y editar remedios para cada persona?",
+      "valor": 0,
+      "min": "0 estrellas: Muy complicado, no pude completarlo.",
+      "max": "5 estrellas: Muy sencillo y rápido de completar."
+    },
+    {
+      "titulo": "Pregunta 3: ¿La visualización de los remedios ordenados por hora te resultó útil?",
+      "valor": 0,
+      "min": "0 estrellas: No es útil, prefiero otro orden.",
+      "max": "5 estrellas: Muy útil, me ayuda a priorizar los remedios."
+    }
+  ],
+  "Funcionalidad": [
+    {
+      "titulo": "Pregunta 1: ¿Qué tan útil te resultó el sistema de marcado de remedios como tomados?",
+      "valor": 0,
+      "min": "0 estrellas: No es útil, prefiero otro método.",
+      "max": "5 estrellas: Extremadamente útil para llevar control."
+    },
+    {
+      "titulo": "Pregunta 2: ¿Cómo calificas los filtros para ver personas (Todos, Críticos, Listos)?",
+      "valor": 0,
+      "min": "0 estrellas: No son útiles, no los usaré.",
+      "max": "5 estrellas: Muy útiles para gestionar múltiples personas."
+    },
+    {
+      "titulo": "Pregunta 3: ¿La función de edición de perfil (foto, nombre, datos) cumple con lo que necesitas?",
+      "valor": 0,
+      "min": "0 estrellas: Faltan opciones importantes.",
+      "max": "5 estrellas: Cumple perfectamente con mis necesidades."
+    }
+  ],
+  "personalizacion": [
+    {
+      "titulo": "Pregunta 1: ¿Qué tan útil te parecieron las opciones de personalización de tamaño en Configuración?",
+      "valor": 0,
+      "min": "0 estrellas: No son relevantes para mí.",
+      "max": "5 estrellas: Muy útiles para adaptar la app a mis necesidades."
+    },
+    {
+      "titulo": "Pregunta 2: ¿La posibilidad de cambiar entre tema claro y oscuro mejora tu experiencia?",
+      "valor": 0,
+      "min": "0 estrellas: No me importa esta función.",
+      "max": "5 estrellas: Mejoró significativamente mi experiencia."
+    },
+    {
+      "titulo": "Pregunta 3: ¿Los ajustes de tamaño de texto y elementos visuales son suficientes?",
+      "valor": 0,
+      "min": "0 estrellas: Necesito más opciones de ajuste.",
+      "max": "5 estrellas: Son perfectos para mis necesidades."
+    }
+  ],
+  "Utilidad": [
+    {
+      "titulo": "Pregunta 1: ¿Qué tan útil te resulta la sección de noticias médicas?",
+      "valor": 0,
+      "min": "0 estrellas: No es relevante para mí.",
+      "max": "5 estrellas: Muy útil para mantenerme informado."
+    },
+    {
+      "titulo": "Pregunta 2: ¿La función del mapa te ayuda a ubicar farmacias o clínicas?",
+      "valor": 0,
+      "min": "0 estrellas: No me resulta útil.",
+      "max": "5 estrellas: Esencial para encontrar servicios médicos."
+    },
+    {
+      "titulo": "Pregunta 3: ¿El sistema de recordatorios de remedios cumple con lo que esperabas?",
+      "valor": 0,
+      "min": "0 estrellas: No cumple mis expectativas.",
+      "max": "5 estrellas: Superó completamente mis expectativas."
+    }
+  ],
+  "Recomendacion": [
+    {
+      "titulo": "Pregunta 1: ¿Recomendarías esta aplicación a alguien que cuida personas mayores o con medicación constante?",
+      "valor": 0,
+      "min": "0 estrellas: No la recomendaría.",
+      "max": "5 estrellas: Definitivamente la recomendaría."
+    },
+    {
+      "titulo": "Pregunta 2: ¿Crees que esta aplicación podría mejorar la calidad de vida de personas con medicación crónica?",
+      "valor": 0,
+      "min": "0 estrellas: No creo que haga diferencia.",
+      "max": "5 estrellas: Podría mejorar significativamente su calidad de vida."
+    },
+    {
+      "titulo": "Pregunta 3: ¿Qué tan probable es que sigas usando esta aplicación a largo plazo?",
+      "valor": 0,
+      "min": "0 estrellas: No planeo seguir usándola.",
+      "max": "5 estrellas: La usaré permanentemente."
+    }
+  ]
+}

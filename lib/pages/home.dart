@@ -4,11 +4,14 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart';
-
 import '../providers/people_provider.dart';
+import '../providers/remedies_provider.dart';
 import '../models/person_model.dart';
 import 'clientes.dart';
 import '../models/model_drawer.dart';
+import '../providers/settings_provider.dart';
+
+enum FilterType { all, critical, ready }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -21,6 +24,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final ImagePicker _picker = ImagePicker();
+  FilterType _currentFilter = FilterType.all;
 
   @override
   void dispose() {
@@ -362,14 +366,79 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  Widget _buildFilterButton(BuildContext context, String text, FilterType filterType, IconData icon) {
+    final isSelected = _currentFilter == filterType;
+    final settings = Provider.of<SettingsProvider>(context);
+    
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _currentFilter = filterType;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isSelected
+            ? Theme.of(context).colorScheme.primaryContainer
+            : Theme.of(context).colorScheme.surface,
+        foregroundColor: isSelected
+            ? Theme.of(context).colorScheme.onPrimaryContainer
+            : Theme.of(context).colorScheme.onSurface,
+        padding: EdgeInsets.symmetric(
+          horizontal: settings.cardPadding.horizontal * 0.5,
+          vertical: settings.cardPadding.vertical * 0.5,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: settings.iconSize * 0.5),
+          const SizedBox(width: 4),
+          Text(text, style: TextStyle(fontSize: settings.subtitleFontSize)),
+        ],
+      ),
+    );
+  }
+
+  String _getEmptyStateMessage() {
+    if (_searchQuery.isNotEmpty) return 'No se encontraron resultados';
+    
+    switch (_currentFilter) {
+      case FilterType.critical:
+        return 'No hay personas críticas';
+      case FilterType.ready:
+        return 'No hay personas listas';
+      case FilterType.all:
+        return 'No hay personas registradas';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context);
     final peopleProvider = Provider.of<PeopleProvider>(context);
+    final remediesProvider = Provider.of<RemediesProvider>(context);
     final filteredPeople = _searchQuery.isEmpty
         ? peopleProvider.people
         : peopleProvider.people
             .where((person) => person.name.toLowerCase().contains(_searchQuery.toLowerCase()))
             .toList();
+
+    final displayedPeople = filteredPeople.where((person) {
+      final hasDueRemedies = remediesProvider.isAnyRemedyDueSoon(person.name);
+      final allRemediesTaken = remediesProvider.areAllRemediesTaken(person.name);
+      
+      switch (_currentFilter) {
+        case FilterType.critical:
+          return hasDueRemedies;
+        case FilterType.ready:
+          return allRemediesTaken;
+        case FilterType.all:
+          return true;
+      }
+    }).toList();
 
     return Scaffold(
       drawer: const ModelDrawer(),
@@ -377,7 +446,9 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(
           '',
           style: TextStyle(
+            fontSize: settings.titleFontSize * 1.5,
             color: Theme.of(context).colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
           ),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
@@ -386,7 +457,7 @@ class _MyHomePageState extends State<MyHomePage> {
             return IconButton(
               icon: Icon(
                 Icons.menu, 
-                size: 32, 
+                size: settings.iconSize,
                 color: Theme.of(context).colorScheme.onPrimary,
               ),
               onPressed: () => Scaffold.of(context).openDrawer(),
@@ -399,20 +470,25 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             color: Theme.of(context).colorScheme.primary,
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+            padding: EdgeInsets.symmetric(
+              vertical: settings.cardPadding.vertical * 1.5,
+              horizontal: settings.cardPadding.horizontal * 1.5,
+            ),
             child: Column(
               children: [
                 Text(
                   'LISTA DE PERSONAS',
                   style: TextStyle(
-                    fontSize: 26,
+                    fontSize: settings.titleFontSize * 1.5,
                     color: Theme.of(context).colorScheme.onPrimary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: settings.cardPadding.vertical),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: settings.cardPadding.horizontal * 1.5,
+                  ),
                   child: TextField(
                     controller: _searchController,
                     decoration: InputDecoration(
@@ -420,19 +496,24 @@ class _MyHomePageState extends State<MyHomePage> {
                       fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
                       hintText: 'Buscar personas...',
                       hintStyle: TextStyle(
+                        fontSize: settings.subtitleFontSize,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       prefixIcon: Icon(
                         Icons.search,
+                        size: settings.iconSize * 0.7,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(30),
                         borderSide: BorderSide.none,
                       ),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 5),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: settings.cardPadding.vertical * 0.5,
+                      ),
                     ),
                     style: TextStyle(
+                      fontSize: settings.subtitleFontSize,
                       color: Theme.of(context).colorScheme.onSurface,
                     ),
                     onChanged: (value) {
@@ -442,51 +523,73 @@ class _MyHomePageState extends State<MyHomePage> {
                     },
                   ),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: settings.cardPadding.vertical * 0.5),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildFilterButton(
+                      context,
+                      'Todos',
+                      FilterType.all,
+                      Icons.people_alt,
+                    ),
+                    _buildFilterButton(
+                      context,
+                      'Críticos',
+                      FilterType.critical,
+                      Icons.warning,
+                    ),
+                    _buildFilterButton(
+                      context,
+                      'Listos',
+                      FilterType.ready,
+                      Icons.check_circle,
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: filteredPeople.isEmpty
+              padding: settings.cardPadding,
+              child: displayedPeople.isEmpty
                   ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
                             Icons.people,
-                            size: 60,
+                            size: settings.avatarRadius * 2,
                             color: Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: settings.cardPadding.vertical * 2),
                           Text(
-                            _searchQuery.isEmpty
-                                ? 'No hay personas registradas'
-                                : 'No se encontraron resultados',
+                            _getEmptyStateMessage(),
                             style: TextStyle(
-                              fontSize: 22,
+                              fontSize: settings.titleFontSize,
                               color: Theme.of(context).colorScheme.onSurface,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          const SizedBox(height: 20),
-                          if (_searchQuery.isEmpty)
+                          if (_searchQuery.isEmpty && _currentFilter == FilterType.all)
                             ElevatedButton(
                               onPressed: () => _showAddPersonDialog(context),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Theme.of(context).colorScheme.primaryContainer,
                                 foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 30, vertical: 15),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: settings.cardPadding.horizontal * 2,
+                                  vertical: settings.cardPadding.vertical * 1.5,
+                                ),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(30),
                                 ),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'Agregar Primera Persona',
                                 style: TextStyle(
-                                  fontSize: 18,
+                                  fontSize: settings.subtitleFontSize,
                                 ),
                               ),
                             ),
@@ -494,89 +597,124 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     )
                   : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 12,
-                        childAspectRatio: 0.85,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: settings.crossAxisCount,
+                        crossAxisSpacing: settings.cardPadding.horizontal,
+                        mainAxisSpacing: settings.cardPadding.vertical,
+                        childAspectRatio: settings.childAspectRatio,
                       ),
-                      itemCount: filteredPeople.length,
+                      itemCount: displayedPeople.length,
                       itemBuilder: (BuildContext context, int index) {
-                        final person = filteredPeople[index];
+                        final person = displayedPeople[index];
+                        final hasDueRemedies = remediesProvider.isAnyRemedyDueSoon(person.name);
+                        final allRemediesTaken = remediesProvider.areAllRemediesTaken(person.name);
+
+                        Color cardColor;
+                        if (allRemediesTaken) {
+                          cardColor = const Color.fromARGB(255, 25, 169, 29);
+                        } else if (hasDueRemedies) {
+                          cardColor = const Color.fromARGB(255, 198, 33, 50);
+                        } else {
+                          cardColor = Theme.of(context).colorScheme.surfaceContainer;
+                        }
+
                         return Card(
                           elevation: 4,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          color: Theme.of(context).colorScheme.surfaceContainer,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(12),
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) => ClientesPage(
-                                    name: person.name,
-                                    imagePath: person.imagePath,
-                                  ),
-                                ),
-                              );
-                            },
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 40,
-                                    backgroundImage: person.imagePath.startsWith('assets/')
-                                        ? AssetImage(person.imagePath) as ImageProvider
-                                        : FileImage(File(person.imagePath)),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Text(
-                                    person.name,
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(context).colorScheme.onSurface,
+                          color: cardColor,
+                          child: Stack(
+                            children: [
+                              InkWell(
+                                borderRadius: BorderRadius.circular(12),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) => ClientesPage(
+                                        name: person.name,
+                                        imagePath: person.imagePath,
+                                      ),
                                     ),
-                                    textAlign: TextAlign.center,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const Spacer(),
-                                  Row(
+                                  );
+                                },
+                                child: Padding(
+                                  padding: settings.cardPadding,
+                                  child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.edit,
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ),
-                                        onPressed: () => _showEditDialog(
-                                          context, 
-                                          person,
-                                          (newImage) {
-                                            peopleProvider.updatePersonImage(
-                                              peopleProvider.people.indexOf(person), 
-                                              newImage
-                                            );
-                                          },
-                                        ),
+                                      CircleAvatar(
+                                        radius: settings.avatarRadius,
+                                        backgroundImage: person.imagePath.startsWith('assets/')
+                                            ? AssetImage(person.imagePath) as ImageProvider
+                                            : FileImage(File(person.imagePath)),
                                       ),
-                                      IconButton(
-                                        icon: Icon(
-                                          Icons.delete,
-                                          color: Theme.of(context).colorScheme.error,
+                                      SizedBox(height: settings.cardPadding.vertical),
+                                      Text(
+                                        person.name,
+                                        style: TextStyle(
+                                          fontSize: settings.subtitleFontSize,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.onSurface,
                                         ),
-                                        onPressed: () => _showDeleteDialog(context, person),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const Spacer(),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.edit,
+                                              size: settings.iconSize * 0.6,
+                                              color: Theme.of(context).colorScheme.primary,
+                                            ),
+                                            onPressed: () => _showEditDialog(
+                                              context, 
+                                              person,
+                                              (newImage) {
+                                                peopleProvider.updatePersonImage(
+                                                  peopleProvider.people.indexOf(person), 
+                                                  newImage
+                                                );
+                                              },
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.delete,
+                                              size: settings.iconSize * 0.6,
+                                              color: Theme.of(context).colorScheme.error,
+                                            ),
+                                            onPressed: () => _showDeleteDialog(context, person),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
+                              if (allRemediesTaken)
+                                Positioned(
+                                  top: settings.cardPadding.top,
+                                  right: settings.cardPadding.right,
+                                  child: Container(
+                                    padding: EdgeInsets.all(settings.cardPadding.horizontal * 0.3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.check,
+                                      size: settings.iconSize * 0.5,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                            ],
                           ),
                         );
                       },
@@ -589,7 +727,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () => _showAddPersonDialog(context),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        child: const Icon(Icons.person_add, size: 32),
+        child: Icon(Icons.person_add, size: settings.iconSize),
       ),
     );
   }

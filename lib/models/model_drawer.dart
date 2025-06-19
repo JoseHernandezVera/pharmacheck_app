@@ -4,6 +4,8 @@ import '../providers/user_provider.dart';
 import '../pages/home.dart';
 import '../pages/profile.dart';
 import '../pages/remenber.dart';
+import '../pages/settings.dart';
+import '../pages/about.dart';
 import 'dart:io';
 
 class ModelDrawer extends StatelessWidget {
@@ -113,6 +115,46 @@ class ModelDrawer extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const RemenberPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.settings,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(
+              "Configuraciones", 
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.info_outline,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            title: Text(
+              "Sobre mi", 
+              style: TextStyle(
+                fontSize: 18,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutPage()),
               );
             },
           ),

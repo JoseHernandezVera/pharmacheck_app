@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
+
 import '../providers/remedies_provider.dart';
+import '../models/remedy_model.dart';
 import '../models/model_drawer.dart';
 import 'map.dart';
-import 'dart:io';
 
 class ClientesPage extends StatefulWidget {
   final String name;
@@ -23,6 +25,9 @@ class _ClientesPageState extends State<ClientesPage> {
   int? _selectedRemedyIndexForDeletion;
   int _selectedIndex = 0;
   late String _currentImagePath;
+  
+  final List<String> _hours = List.generate(24, (index) => index.toString().padLeft(2, '0'));
+  final List<String> _minutes = List.generate(60, (index) => index.toString().padLeft(2, '0'));
 
   @override
   void initState() {
@@ -30,10 +35,168 @@ class _ClientesPageState extends State<ClientesPage> {
     _currentImagePath = widget.imagePath;
   }
 
+  void _showEditRemedyDialog(int index) {
+    final remediesProvider = Provider.of<RemediesProvider>(context, listen: false);
+    final remedies = remediesProvider.getRemediesForPerson(widget.name);
+    final remedy = remedies[index];
+    
+    final TextEditingController nameController = TextEditingController(text: remedy.name);
+    
+    final timeParts = remedy.time.split(':');
+    String selectedHour = timeParts[0];
+    String selectedMinute = timeParts[1];
+    
+    bool canSave = false;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
+            nameController.addListener(() {
+              final isNotEmpty = nameController.text.trim().isNotEmpty;
+              if (isNotEmpty != canSave) {
+                setStateDialog(() {
+                  canSave = isNotEmpty;
+                });
+              }
+            });
+
+            return AlertDialog(
+              title: const Text('Editar remedio'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: 'Nombre del remedio',
+                      labelStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: selectedHour,
+                          items: _hours.map((hour) {
+                            return DropdownMenuItem(
+                              value: hour,
+                              child: Text(
+                                hour,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setStateDialog(() {
+                                selectedHour = value;
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Hora',
+                            labelStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        ':',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: selectedMinute,
+                          items: _minutes.map((minute) {
+                            return DropdownMenuItem(
+                              value: minute,
+                              child: Text(
+                                minute,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setStateDialog(() {
+                                selectedMinute = value;
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Minutos',
+                            labelStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancelar',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: canSave
+                      ? () {
+                          remediesProvider.updateRemedy(
+                            widget.name, 
+                            index,
+                            name: nameController.text.trim(),
+                            time: '$selectedHour:$selectedMinute',
+                          );
+                          Navigator.pop(context);
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  ),
+                  child: const Text('Guardar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _showAddRemedyDialog() {
     final TextEditingController nameController = TextEditingController();
-    int selectedHour = 8;
-    int selectedMinute = 0;
+    String selectedHour = '08';
+    String selectedMinute = '00';
     bool canAdd = false;
 
     showDialog(
@@ -62,64 +225,83 @@ class _ClientesPageState extends State<ClientesPage> {
                       labelStyle: TextStyle(
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'Hora de toma', 
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      DropdownButton<int>(
-                        value: selectedHour,
-                        dropdownColor: Theme.of(context).colorScheme.surfaceContainer,
-                        items: List.generate(24, (i) {
-                          return DropdownMenuItem(
-                            value: i,
-                            child: Text(
-                              i.toString().padLeft(2, '0'),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: selectedHour,
+                          items: _hours.map((hour) {
+                            return DropdownMenuItem(
+                              value: hour,
+                              child: Text(
+                                hour,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
                               ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setStateDialog(() {
+                                selectedHour = value;
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Hora',
+                            labelStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
-                          );
-                        }),
-                        onChanged: (value) {
-                          setStateDialog(() {
-                            selectedHour = value!;
-                          });
-                        },
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          ),
+                        ),
                       ),
-                      const SizedBox(width: 10),
-                      DropdownButton<int>(
-                        value: selectedMinute,
-                        dropdownColor: Theme.of(context).colorScheme.surfaceContainer,
-                        items: List.generate(60, (i) {
-                          return DropdownMenuItem(
-                            value: i,
-                            child: Text(
-                              i.toString().padLeft(2, '0'),
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.onSurface,
+                      const SizedBox(width: 16),
+                      Text(
+                        ':',
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          value: selectedMinute,
+                          items: _minutes.map((minute) {
+                            return DropdownMenuItem(
+                              value: minute,
+                              child: Text(
+                                minute,
+                                style: TextStyle(
+                                  color: Theme.of(context).colorScheme.onSurface,
+                                ),
                               ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            if (value != null) {
+                              setStateDialog(() {
+                                selectedMinute = value;
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Minutos',
+                            labelStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
-                          );
-                        }),
-                        onChanged: (value) {
-                          setStateDialog(() {
-                            selectedMinute = value!;
-                          });
-                        },
+                            border: OutlineInputBorder(),
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -139,10 +321,8 @@ class _ClientesPageState extends State<ClientesPage> {
                 ElevatedButton(
                   onPressed: canAdd
                       ? () {
-                          String formattedTime =
-                              "${selectedHour.toString().padLeft(2, '0')}:${selectedMinute.toString().padLeft(2, '0')}";
                           Provider.of<RemediesProvider>(context, listen: false)
-                              .addRemedy(widget.name, nameController.text.trim(), formattedTime);
+                              .addRemedy(widget.name, nameController.text.trim(), '$selectedHour:$selectedMinute');
                           Navigator.pop(context);
                         }
                       : null,
@@ -309,10 +489,36 @@ class _ClientesPageState extends State<ClientesPage> {
     }
   }
 
+  List<Remedy> _sortRemedies(List<Remedy> remedies) {
+    final now = DateTime.now();
+    final currentHour = now.hour;
+    final currentMinute = now.minute;
+
+    remedies.sort((a, b) {
+      final aTimeParts = a.time.split(':');
+      final bTimeParts = b.time.split(':');
+      
+      final aHour = int.parse(aTimeParts[0]);
+      final aMinute = int.parse(aTimeParts[1]);
+      final bHour = int.parse(bTimeParts[0]);
+      final bMinute = int.parse(bTimeParts[1]);
+
+      int aDiff = (aHour - currentHour) * 60 + (aMinute - currentMinute);
+      int bDiff = (bHour - currentHour) * 60 + (bMinute - currentMinute);
+
+      if (aDiff < 0) aDiff += 24 * 60;
+      if (bDiff < 0) bDiff += 24 * 60;
+
+      return aDiff.compareTo(bDiff);
+    });
+
+    return remedies;
+  }
+
   @override
   Widget build(BuildContext context) {
     final remediesProvider = Provider.of<RemediesProvider>(context);
-    final remedies = remediesProvider.getRemediesForPerson(widget.name);
+    final remedies = _sortRemedies(remediesProvider.getRemediesForPerson(widget.name));
 
     return Scaffold(
       drawer: const ModelDrawer(),
@@ -405,7 +611,7 @@ class _ClientesPageState extends State<ClientesPage> {
                       vertical: 8, horizontal: 16),
                   decoration: BoxDecoration(
                     color: isTaken
-                        ? Theme.of(context).colorScheme.primaryContainer
+                        ? Colors.green[700]
                         : Theme.of(context).colorScheme.surfaceContainer,
                     border: Border.all(
                       color: Theme.of(context).colorScheme.outline,
@@ -423,10 +629,12 @@ class _ClientesPageState extends State<ClientesPage> {
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16, vertical: 8),
-                    leading: Icon(
-                      Icons.medication,
-                      size: 36,
-                      color: Theme.of(context).colorScheme.primary,
+                    leading: IconButton(
+                      icon: Icon(
+                        Icons.edit,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      onPressed: () => _showEditRemedyDialog(index),
                     ),
                     title: Text(
                       remedy.name,

@@ -1,4 +1,4 @@
-package com.jose.pharmacheck
+package cl.jhernandez.pharmacheck
 
 import io.flutter.embedding.android.FlutterActivity
 

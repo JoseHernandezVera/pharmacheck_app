@@ -1,10 +1,10 @@
-//Codigo de Jose hernandez Vera
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'pages/splash.dart';
 import 'providers/user_provider.dart';
 import 'providers/people_provider.dart';
 import 'providers/remedies_provider.dart';
+import 'providers/settings_provider.dart';
 import 'themes/theme.dart';
 import 'themes/util.dart';
 
@@ -15,6 +15,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => PeopleProvider()),
         ChangeNotifierProvider(create: (_) => RemediesProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
       child: const MyApp(),
     ),
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context, listen: true);
     final textTheme = createTextTheme(context, "Roboto", "Roboto Condensed");
     final materialTheme = MaterialTheme(textTheme);
 
@@ -33,6 +35,7 @@ class MyApp extends StatelessWidget {
       title: 'PharmaCheck',
       theme: materialTheme.light(),
       darkTheme: materialTheme.dark(),
+      themeMode: settings.themeMode,
       home: const SplashPage(),
       debugShowCheckedModeBanner: false,
     );

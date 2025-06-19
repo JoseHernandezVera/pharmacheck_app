@@ -1,6 +1,6 @@
 class Remedy {
-  final String name;
-  final String time;
+  String name;
+  String time;
   bool isTaken;
 
   Remedy({
