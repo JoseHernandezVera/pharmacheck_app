@@ -52,7 +52,6 @@ class SettingsPage extends StatelessWidget {
             children: [
               _buildSizeButton(context, size: CardSize.small, label: 'Pequeño'),
               _buildSizeButton(context, size: CardSize.medium, label: 'Mediano'),
-              _buildSizeButton(context, size: CardSize.large, label: 'Grande'),
             ],
           ),
 

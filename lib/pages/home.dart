@@ -487,6 +487,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       drawer: const ModelDrawer(),
       appBar: AppBar(
         title: Text(
@@ -621,40 +622,37 @@ class _MyHomePageState extends State<MyHomePage> {
                         ],
                       ),
                     )
-                  : LayoutBuilder(
-                      builder: (context, constraints) {
-                        final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
-                        final childAspectRatio = constraints.maxWidth > 600 ? 0.8 : 0.9;
-                        
-                        return GridView.builder(
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: crossAxisCount,
-                            crossAxisSpacing: settings.cardPadding.horizontal,
-                            mainAxisSpacing: settings.cardPadding.vertical,
-                            childAspectRatio: childAspectRatio,
+                  : GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: settings.crossAxisCount,
+                        crossAxisSpacing: settings.cardPadding.horizontal,
+                        mainAxisSpacing: settings.cardPadding.vertical,
+                        childAspectRatio: settings.childAspectRatio,
+                      ),
+                      itemCount: displayedPeople.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        final person = displayedPeople[index];
+                        final hasDueRemedies = remediesProvider.isAnyRemedyDueSoon(person.name);
+                        final allRemediesTaken = remediesProvider.areAllRemediesTaken(person.name);
+
+                        Color cardColor;
+                        if (allRemediesTaken) {
+                          cardColor = const Color.fromARGB(255, 25, 169, 29);
+                        } else if (hasDueRemedies) {
+                          cardColor = const Color.fromARGB(255, 198, 33, 50);
+                        } else {
+                          cardColor = Theme.of(context).colorScheme.surfaceContainer;
+                        }
+
+                        return Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          itemCount: displayedPeople.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final person = displayedPeople[index];
-                            final hasDueRemedies = remediesProvider.isAnyRemedyDueSoon(person.name);
-                            final allRemediesTaken = remediesProvider.areAllRemediesTaken(person.name);
-
-                            Color cardColor;
-                            if (allRemediesTaken) {
-                              cardColor = const Color.fromARGB(255, 25, 169, 29);
-                            } else if (hasDueRemedies) {
-                              cardColor = const Color.fromARGB(255, 198, 33, 50);
-                            } else {
-                              cardColor = Theme.of(context).colorScheme.surfaceContainer;
-                            }
-
-                            return Card(
-                              elevation: 4,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              color: cardColor,
-                              child: Stack(
+                          color: cardColor,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Stack(
                                 children: [
                                   InkWell(
                                     borderRadius: BorderRadius.circular(12),
@@ -670,36 +668,46 @@ class _MyHomePageState extends State<MyHomePage> {
                                       );
                                     },
                                     child: Padding(
-                                      padding: settings.cardPadding,
+                                      padding: EdgeInsets.all(constraints.maxWidth * 0.05),
                                       child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                         children: [
                                           CircleAvatar(
-                                            radius: settings.avatarRadius,
+                                            radius: constraints.maxWidth * 0.24,
                                             backgroundImage: person.imagePath.startsWith('assets/')
                                                 ? AssetImage(person.imagePath) as ImageProvider
                                                 : FileImage(File(person.imagePath)),
                                           ),
-                                          SizedBox(height: settings.cardPadding.vertical),
-                                          Text(
-                                            person.name,
-                                            style: TextStyle(
-                                              fontSize: settings.subtitleFontSize,
-                                              fontWeight: FontWeight.bold,
-                                              color: Theme.of(context).colorScheme.onSurface,
+                                          Flexible(
+                                            child: FittedBox(
+                                              fit: BoxFit.scaleDown,
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: constraints.maxWidth * 0.05),
+                                                constraints: BoxConstraints(
+                                                  maxWidth: constraints.maxWidth * 0.9,
+                                                ),
+                                                child: Text(
+                                                  person.name,
+                                                  style: TextStyle(
+                                                    fontSize: 30,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Theme.of(context).colorScheme.onSurface,
+                                                  ),
+                                                  textAlign: TextAlign.center,
+                                                  maxLines: 2,
+                                                  overflow: TextOverflow.ellipsis,
+                                                ),
+                                              ),
                                             ),
-                                            textAlign: TextAlign.center,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          const Spacer(),
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.center,
                                             children: [
                                               IconButton(
                                                 icon: Icon(
                                                   Icons.edit,
-                                                  size: settings.iconSize * 0.6,
+                                                  size: constraints.maxWidth * 0.12,
                                                   color: Theme.of(context).colorScheme.primary,
                                                 ),
                                                 onPressed: () => _showEditDialog(
@@ -716,7 +724,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                               IconButton(
                                                 icon: Icon(
                                                   Icons.delete,
-                                                  size: settings.iconSize * 0.6,
+                                                  size: constraints.maxWidth * 0.12,
                                                   color: Theme.of(context).colorScheme.error,
                                                 ),
                                                 onPressed: () => _showDeleteDialog(context, person),
@@ -729,25 +737,25 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ),
                                   if (allRemediesTaken)
                                     Positioned(
-                                      top: settings.cardPadding.top,
-                                      right: settings.cardPadding.right,
+                                      top: constraints.maxHeight * 0.02,
+                                      right: constraints.maxWidth * 0.02,
                                       child: Container(
-                                        padding: EdgeInsets.all(settings.cardPadding.horizontal * 0.3),
+                                        padding: EdgeInsets.all(constraints.maxWidth * 0.05),
                                         decoration: const BoxDecoration(
                                           color: Colors.green,
                                           shape: BoxShape.circle,
                                         ),
                                         child: Icon(
                                           Icons.check,
-                                          size: settings.iconSize * 0.5,
+                                          size: constraints.maxWidth * 0.08,
                                           color: Colors.white,
                                         ),
                                       ),
                                     ),
                                 ],
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         );
                       },
                     ),

@@ -6,6 +6,7 @@ import '../pages/profile.dart';
 import '../pages/remenber.dart';
 import '../pages/settings.dart';
 import '../pages/about.dart';
+import '../pages/login.dart'; // Asegúrate de importar la página de login
 import 'dart:io';
 
 class ModelDrawer extends StatelessWidget {
@@ -157,6 +158,39 @@ class ModelDrawer extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const AboutPage()),
               );
             },
+          ),
+          // Botón de cerrar sesión
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ElevatedButton.icon(
+              icon: Image.asset(
+                'assets/images/salida.png',
+                width: 24,
+                height: 24,
+                color: Theme.of(context).colorScheme.onErrorContainer,
+              ),
+              label: Text(
+                'Cerrar sesión',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Theme.of(context).colorScheme.onErrorContainer,
+                ),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginPage()),
+                );
+              },
+            ),
           ),
         ],
       ),

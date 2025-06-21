@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum CardSize { small, medium, large }
+enum CardSize { small, medium }
 
 class SettingsProvider with ChangeNotifier {
   CardSize _cardSize = CardSize.medium;
@@ -11,15 +11,17 @@ class SettingsProvider with ChangeNotifier {
   CardSize get cardSize => _cardSize;
   ThemeMode get themeMode => _themeMode;
 
-  Future<void> loadPreferences() async {
+  Future<void> loadPreferences(BuildContext context) async {
     _prefs = await SharedPreferences.getInstance();
-    
+
     final savedSize = _prefs.getString('cardSize');
     if (savedSize != null) {
       _cardSize = CardSize.values.firstWhere(
         (e) => e.toString() == savedSize,
         orElse: () => CardSize.medium,
       );
+    } else {
+      _cardSize = getAdaptiveCardSize(context);
     }
 
     final savedTheme = _prefs.getString('themeMode');
@@ -29,7 +31,7 @@ class SettingsProvider with ChangeNotifier {
         orElse: () => ThemeMode.system,
       );
     }
-    
+
     notifyListeners();
   }
 
@@ -45,14 +47,21 @@ class SettingsProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  CardSize getAdaptiveCardSize(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    if (width < 360) {
+      return CardSize.small;
+    } else {
+      return CardSize.medium;
+    }
+  }
+
   int get crossAxisCount {
     switch (_cardSize) {
       case CardSize.small:
         return 3;
       case CardSize.medium:
         return 2;
-      case CardSize.large:
-        return 1;
     }
   }
 
@@ -61,9 +70,7 @@ class SettingsProvider with ChangeNotifier {
       case CardSize.small:
         return 0.8;
       case CardSize.medium:
-        return 0.85;
-      case CardSize.large:
-        return 1.3;
+        return 0.9;
     }
   }
 
@@ -73,8 +80,6 @@ class SettingsProvider with ChangeNotifier {
         return 14.0;
       case CardSize.medium:
         return 18.0;
-      case CardSize.large:
-        return 22.0;
     }
   }
 
@@ -84,8 +89,6 @@ class SettingsProvider with ChangeNotifier {
         return 12.0;
       case CardSize.medium:
         return 14.0;
-      case CardSize.large:
-        return 16.0;
     }
   }
 
@@ -95,8 +98,6 @@ class SettingsProvider with ChangeNotifier {
         return 24.0;
       case CardSize.medium:
         return 32.0;
-      case CardSize.large:
-        return 40.0;
     }
   }
 
@@ -106,8 +107,6 @@ class SettingsProvider with ChangeNotifier {
         return 28.0;
       case CardSize.medium:
         return 36.0;
-      case CardSize.large:
-        return 44.0;
     }
   }
 
@@ -117,8 +116,6 @@ class SettingsProvider with ChangeNotifier {
         return const EdgeInsets.all(4.0);
       case CardSize.medium:
         return const EdgeInsets.all(12.0);
-      case CardSize.large:
-        return const EdgeInsets.all(16.0);
     }
   }
 }

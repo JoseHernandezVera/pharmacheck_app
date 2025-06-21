@@ -9,14 +9,45 @@ import 'providers/location_provider.dart';
 import 'themes/theme.dart';
 import 'themes/util.dart';
 
-void main() async {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  runApp(const AppInitializer());
+}
 
+class AppInitializer extends StatefulWidget {
+  const AppInitializer({super.key});
+
+  @override
+  State<AppInitializer> createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends State<AppInitializer> {
   final settingsProvider = SettingsProvider();
-  await settingsProvider.loadPreferences();
+  bool isReady = false;
 
-  runApp(
-    MultiProvider(
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    await settingsProvider.loadPreferences(context);
+    setState(() => isReady = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isReady) {
+      return const MaterialApp(
+        home: Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+        debugShowCheckedModeBanner: false,
+      );
+    }
+
+    return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => PeopleProvider()),
@@ -25,8 +56,8 @@ void main() async {
         ChangeNotifierProvider.value(value: settingsProvider),
       ],
       child: const MyApp(),
-    ),
-  );
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
