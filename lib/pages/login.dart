@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/user_provider.dart';
+import '../database/database_helper.dart';
 import 'home.dart';
 
 class LoginPage extends StatefulWidget {
@@ -15,6 +14,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  final DatabaseHelper dbHelper = DatabaseHelper();
 
   @override
   void dispose() {
@@ -29,33 +29,129 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _isLoading = true);
 
     try {
-      await Future.delayed(const Duration(seconds: 1));
-      
-      final currentContext = context;
-      
-      if (!mounted) return;
-      Provider.of<UserProvider>(currentContext, listen: false).loginUser(
-        email: _emailController.text,
-      );
+      final user = await dbHelper.getUserByEmail(_emailController.text);
 
       if (!mounted) return;
-      Navigator.pushReplacement(
-        currentContext,
-        MaterialPageRoute(builder: (context) => const MyHomePage()),
-      );
+
+      if (user == null) {
+        _showSnackBar('Usuario no encontrado. Por favor regístrate.');
+      } else if (user['password'] != _passwordController.text) {
+        _showSnackBar('Contraseña incorrecta');
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MyHomePage()),
+        );
+      }
     } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: ${e.toString()}'),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
+      _showSnackBar('Error: ${e.toString()}');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
+  }
+
+  Future<void> _showRegisterDialog() async {
+    final regEmailController = TextEditingController();
+    final regPasswordController = TextEditingController();
+    final regFormKey = GlobalKey<FormState>();
+    bool registering = false;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setStateDialog) {
+            return AlertDialog(
+              title: const Text('Registro de nuevo usuario'),
+              content: Form(
+                key: regFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: regEmailController,
+                      decoration: const InputDecoration(labelText: 'Correo electrónico'),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Por favor ingrese un correo';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) return 'Correo no válido';
+                        return null;
+                      },
+                    ),
+                    TextFormField(
+                      controller: regPasswordController,
+                      decoration: const InputDecoration(labelText: 'Contraseña'),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Por favor ingrese una contraseña';
+                        if (value.length < 6) return 'Debe tener al menos 6 caracteres';
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: registering ? null : () => Navigator.pop(ctx),
+                  child: const Text('Cancelar'),
+                ),
+                ElevatedButton(
+                  onPressed: registering
+                      ? null
+                      : () async {
+                          if (!regFormKey.currentState!.validate()) return;
+                          setStateDialog(() => registering = true);
+                          try {
+                            final existingUser = await dbHelper.getUserByEmail(regEmailController.text);
+
+                            if (existingUser != null) {
+                              if (ctx.mounted) {
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  const SnackBar(content: Text('El usuario ya existe')),
+                                );
+                              }
+                            } else {
+                              await dbHelper.insertUser(regEmailController.text, regPasswordController.text);
+
+                              if (ctx.mounted) {
+                                ScaffoldMessenger.of(ctx).showSnackBar(
+                                  const SnackBar(content: Text('Registro exitoso, ya puedes iniciar sesión')),
+                                );
+                                Navigator.pop(ctx);
+                              }
+                            }
+                          } catch (e) {
+                            if (ctx.mounted) {
+                              ScaffoldMessenger.of(ctx).showSnackBar(
+                                SnackBar(content: Text('Error: ${e.toString()}')),
+                              );
+                            }
+                          } finally {
+                            if (ctx.mounted) {
+                              setStateDialog(() => registering = false);
+                            }
+                          }
+                        },
+                  child: registering
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Text('Registrar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
@@ -76,7 +172,6 @@ class _LoginPageState extends State<LoginPage> {
                 height: 150,
               ),
               const SizedBox(height: 32),
-
               Text(
                 'PharmaCheck',
                 style: theme.textTheme.headlineMedium?.copyWith(
@@ -111,13 +206,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingrese su correo';
-                        }
-                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                            .hasMatch(value)) {
-                          return 'Ingrese un correo válido';
-                        }
+                        if (value == null || value.isEmpty) return 'Por favor ingrese su correo';
+                        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) return 'Ingrese un correo válido';
                         return null;
                       },
                     ),
@@ -136,12 +226,8 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       obscureText: true,
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor ingrese su contraseña';
-                        }
-                        if (value.length < 6) {
-                          return 'La contraseña debe tener al menos 6 caracteres';
-                        }
+                        if (value == null || value.isEmpty) return 'Por favor ingrese su contraseña';
+                        if (value.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
                         return null;
                       },
                     ),
@@ -161,6 +247,19 @@ class _LoginPageState extends State<LoginPage> {
                         child: _isLoading
                             ? const CircularProgressIndicator()
                             : const Text('Iniciar sesión'),
+                      ),
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    TextButton(
+                      onPressed: _isLoading ? null : _showRegisterDialog,
+                      child: Text(
+                        '¿No tienes cuenta? Regístrate',
+                        style: TextStyle(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ],

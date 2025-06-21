@@ -50,6 +50,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Future<String?> _showImageSourceDialog(BuildContext context) async {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
+    
     return await showDialog<String>(
       context: context,
       builder: (BuildContext context) {
@@ -58,45 +60,56 @@ class _MyHomePageState extends State<MyHomePage> {
             'Seleccionar imagen',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
+              fontSize: settings.subtitleFontSize,
             ),
           ),
           backgroundColor: Theme.of(context).colorScheme.surface,
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: Icon(
-                  Icons.photo_library,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                title: Text(
-                  'Galería',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(
+                    Icons.photo_library,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: settings.iconSize * 0.8,
                   ),
-                ),
-                onTap: () async {
-                  final image = await _pickImage(fromCamera: false);
-                  Navigator.pop(context, image);
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.camera_alt,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                title: Text(
-                  'Cámara',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
+                  title: Text(
+                    'Galería',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: settings.subtitleFontSize,
+                    ),
                   ),
+                  onTap: () async {
+                    final image = await _pickImage(fromCamera: false);
+                    if (context.mounted) {
+                      Navigator.pop(context, image);
+                    }
+                  },
                 ),
-                onTap: () async {
-                  final image = await _pickImage(fromCamera: true);
-                  Navigator.pop(context, image);
-                },
-              ),
-            ],
+                ListTile(
+                  leading: Icon(
+                    Icons.camera_alt,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: settings.iconSize * 0.8,
+                  ),
+                  title: Text(
+                    'Cámara',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: settings.subtitleFontSize,
+                    ),
+                  ),
+                  onTap: () async {
+                    final image = await _pickImage(fromCamera: true);
+                    if (context.mounted) {
+                      Navigator.pop(context, image);
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -104,6 +117,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showAddPersonDialog(BuildContext context) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
     final TextEditingController nameController = TextEditingController();
     String imagePath = 'assets/images/perfil.jpg';
     bool canAdd = false;
@@ -127,51 +141,57 @@ class _MyHomePageState extends State<MyHomePage> {
                 'Agregar persona',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: settings.titleFontSize,
                 ),
               ),
               backgroundColor: Theme.of(context).colorScheme.surface,
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      final newImage = await _showImageSourceDialog(context);
-                      if (newImage != null) {
-                        setState(() {
-                          imagePath = newImage;
-                        });
-                      }
-                    },
-                    child: CircleAvatar(
-                      radius: 40,
-                      backgroundImage: imagePath.startsWith('assets/')
-                          ? AssetImage(imagePath) as ImageProvider
-                          : FileImage(File(imagePath)),
-                      child: Icon(
-                        Icons.camera_alt, 
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nombre',
-                      labelStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final newImage = await _showImageSourceDialog(context);
+                        if (newImage != null && mounted) {
+                          setState(() {
+                            imagePath = newImage;
+                          });
+                        }
+                      },
+                      child: CircleAvatar(
+                        radius: settings.avatarRadius,
+                        backgroundImage: imagePath.startsWith('assets/')
+                            ? AssetImage(imagePath) as ImageProvider
+                            : FileImage(File(imagePath)),
+                        child: Icon(
+                          Icons.camera_alt, 
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          size: settings.iconSize * 0.7,
                         ),
                       ),
                     ),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+                    SizedBox(height: settings.cardPadding.vertical),
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nombre',
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: settings.subtitleFontSize,
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: settings.subtitleFontSize,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -180,6 +200,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     'Cancelar',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: settings.subtitleFontSize,
                     ),
                   ),
                 ),
@@ -199,7 +220,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   ),
-                  child: const Text('Agregar'),
+                  child: Text(
+                    'Agregar',
+                    style: TextStyle(fontSize: settings.subtitleFontSize),
+                  ),
                 ),
               ],
             );
@@ -210,6 +234,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showEditDialog(BuildContext context, Person person, Function(String) onImageUpdated) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
     final TextEditingController nameController = TextEditingController(text: person.name);
     final peopleProvider = Provider.of<PeopleProvider>(context, listen: false);
     final index = peopleProvider.people.indexOf(person);
@@ -235,52 +260,58 @@ class _MyHomePageState extends State<MyHomePage> {
                 'Editar persona',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: settings.titleFontSize,
                 ),
               ),
               backgroundColor: Theme.of(context).colorScheme.surface,
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  GestureDetector(
-                    onTap: () async {
-                      final newImage = await _showImageSourceDialog(context);
-                      if (newImage != null) {
-                        setState(() {
-                          currentImagePath = newImage;
-                        });
-                        onImageUpdated(newImage);
-                      }
-                    },
-                    child: CircleAvatar(
-                      radius: 40,
-                      backgroundImage: currentImagePath.startsWith('assets/')
-                          ? AssetImage(currentImagePath) as ImageProvider
-                          : FileImage(File(currentImagePath)),
-                      child: Icon(
-                        Icons.camera_alt, 
-                        color: Theme.of(context).colorScheme.onPrimary,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: nameController,
-                    decoration: InputDecoration(
-                      labelText: 'Nombre',
-                      labelStyle: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Theme.of(context).colorScheme.outline,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    GestureDetector(
+                      onTap: () async {
+                        final newImage = await _showImageSourceDialog(context);
+                        if (newImage != null && mounted) {
+                          setState(() {
+                            currentImagePath = newImage;
+                          });
+                          onImageUpdated(newImage);
+                        }
+                      },
+                      child: CircleAvatar(
+                        radius: settings.avatarRadius,
+                        backgroundImage: currentImagePath.startsWith('assets/')
+                            ? AssetImage(currentImagePath) as ImageProvider
+                            : FileImage(File(currentImagePath)),
+                        child: Icon(
+                          Icons.camera_alt, 
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          size: settings.iconSize * 0.7,
                         ),
                       ),
                     ),
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
+                    SizedBox(height: settings.cardPadding.vertical),
+                    TextField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: 'Nombre',
+                        labelStyle: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          fontSize: settings.subtitleFontSize,
+                        ),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                      ),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: settings.subtitleFontSize,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               actions: [
                 TextButton(
@@ -289,6 +320,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     'Cancelar',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.onSurface,
+                      fontSize: settings.subtitleFontSize,
                     ),
                   ),
                 ),
@@ -309,7 +341,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   ),
-                  child: const Text('Guardar'),
+                  child: Text(
+                    'Guardar',
+                    style: TextStyle(fontSize: settings.subtitleFontSize),
+                  ),
                 ),
               ],
             );
@@ -320,6 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void _showDeleteDialog(BuildContext context, Person person) {
+    final settings = Provider.of<SettingsProvider>(context, listen: false);
     final peopleProvider = Provider.of<PeopleProvider>(context, listen: false);
 
     showDialog(
@@ -330,6 +366,7 @@ class _MyHomePageState extends State<MyHomePage> {
             'Eliminar persona',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
+              fontSize: settings.titleFontSize,
             ),
           ),
           backgroundColor: Theme.of(context).colorScheme.surface,
@@ -337,6 +374,7 @@ class _MyHomePageState extends State<MyHomePage> {
             '¿Eliminar a ${person.name}?',
             style: TextStyle(
               color: Theme.of(context).colorScheme.onSurface,
+              fontSize: settings.subtitleFontSize,
             ),
           ),
           actions: [
@@ -346,6 +384,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 'Cancelar',
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurface,
+                  fontSize: settings.subtitleFontSize,
                 ),
               ),
             ),
@@ -358,7 +397,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 peopleProvider.removePerson(peopleProvider.people.indexOf(person));
                 Navigator.pop(context);
               },
-              child: const Text('Eliminar'),
+              child: Text(
+                'Eliminar',
+                style: TextStyle(fontSize: settings.subtitleFontSize),
+              ),
             ),
           ],
         );
@@ -396,7 +438,10 @@ class _MyHomePageState extends State<MyHomePage> {
         children: [
           Icon(icon, size: settings.iconSize * 0.5),
           const SizedBox(width: 4),
-          Text(text, style: TextStyle(fontSize: settings.subtitleFontSize)),
+          Text(
+            text, 
+            style: TextStyle(fontSize: settings.subtitleFontSize),
+          ),
         ],
       ),
     );
@@ -420,6 +465,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final settings = Provider.of<SettingsProvider>(context);
     final peopleProvider = Provider.of<PeopleProvider>(context);
     final remediesProvider = Provider.of<RemediesProvider>(context);
+    
     final filteredPeople = _searchQuery.isEmpty
         ? peopleProvider.people
         : peopleProvider.people
@@ -572,150 +618,136 @@ class _MyHomePageState extends State<MyHomePage> {
                               fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (_searchQuery.isEmpty && _currentFilter == FilterType.all)
-                            ElevatedButton(
-                              onPressed: () => _showAddPersonDialog(context),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                                foregroundColor: Theme.of(context).colorScheme.onPrimaryContainer,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: settings.cardPadding.horizontal * 2,
-                                  vertical: settings.cardPadding.vertical * 1.5,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                              ),
-                              child: Text(
-                                'Agregar Primera Persona',
-                                style: TextStyle(
-                                  fontSize: settings.subtitleFontSize,
-                                ),
-                              ),
-                            ),
                         ],
                       ),
                     )
-                  : GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: settings.crossAxisCount,
-                        crossAxisSpacing: settings.cardPadding.horizontal,
-                        mainAxisSpacing: settings.cardPadding.vertical,
-                        childAspectRatio: settings.childAspectRatio,
-                      ),
-                      itemCount: displayedPeople.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        final person = displayedPeople[index];
-                        final hasDueRemedies = remediesProvider.isAnyRemedyDueSoon(person.name);
-                        final allRemediesTaken = remediesProvider.areAllRemediesTaken(person.name);
-
-                        Color cardColor;
-                        if (allRemediesTaken) {
-                          cardColor = const Color.fromARGB(255, 25, 169, 29);
-                        } else if (hasDueRemedies) {
-                          cardColor = const Color.fromARGB(255, 198, 33, 50);
-                        } else {
-                          cardColor = Theme.of(context).colorScheme.surfaceContainer;
-                        }
-
-                        return Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                  : LayoutBuilder(
+                      builder: (context, constraints) {
+                        final crossAxisCount = constraints.maxWidth > 600 ? 3 : 2;
+                        final childAspectRatio = constraints.maxWidth > 600 ? 0.8 : 0.9;
+                        
+                        return GridView.builder(
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: crossAxisCount,
+                            crossAxisSpacing: settings.cardPadding.horizontal,
+                            mainAxisSpacing: settings.cardPadding.vertical,
+                            childAspectRatio: childAspectRatio,
                           ),
-                          color: cardColor,
-                          child: Stack(
-                            children: [
-                              InkWell(
+                          itemCount: displayedPeople.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            final person = displayedPeople[index];
+                            final hasDueRemedies = remediesProvider.isAnyRemedyDueSoon(person.name);
+                            final allRemediesTaken = remediesProvider.areAllRemediesTaken(person.name);
+
+                            Color cardColor;
+                            if (allRemediesTaken) {
+                              cardColor = const Color.fromARGB(255, 25, 169, 29);
+                            } else if (hasDueRemedies) {
+                              cardColor = const Color.fromARGB(255, 198, 33, 50);
+                            } else {
+                              cardColor = Theme.of(context).colorScheme.surfaceContainer;
+                            }
+
+                            return Card(
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (BuildContext context) => ClientesPage(
-                                        name: person.name,
-                                        imagePath: person.imagePath,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Padding(
-                                  padding: settings.cardPadding,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      CircleAvatar(
-                                        radius: settings.avatarRadius,
-                                        backgroundImage: person.imagePath.startsWith('assets/')
-                                            ? AssetImage(person.imagePath) as ImageProvider
-                                            : FileImage(File(person.imagePath)),
-                                      ),
-                                      SizedBox(height: settings.cardPadding.vertical),
-                                      Text(
-                                        person.name,
-                                        style: TextStyle(
-                                          fontSize: settings.subtitleFontSize,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                              color: cardColor,
+                              child: Stack(
+                                children: [
+                                  InkWell(
+                                    borderRadius: BorderRadius.circular(12),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (BuildContext context) => ClientesPage(
+                                            name: person.name,
+                                            imagePath: person.imagePath,
+                                          ),
                                         ),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const Spacer(),
-                                      Row(
+                                      );
+                                    },
+                                    child: Padding(
+                                      padding: settings.cardPadding,
+                                      child: Column(
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.edit,
-                                              size: settings.iconSize * 0.6,
-                                              color: Theme.of(context).colorScheme.primary,
-                                            ),
-                                            onPressed: () => _showEditDialog(
-                                              context, 
-                                              person,
-                                              (newImage) {
-                                                peopleProvider.updatePersonImage(
-                                                  peopleProvider.people.indexOf(person), 
-                                                  newImage
-                                                );
-                                              },
-                                            ),
+                                          CircleAvatar(
+                                            radius: settings.avatarRadius,
+                                            backgroundImage: person.imagePath.startsWith('assets/')
+                                                ? AssetImage(person.imagePath) as ImageProvider
+                                                : FileImage(File(person.imagePath)),
                                           ),
-                                          IconButton(
-                                            icon: Icon(
-                                              Icons.delete,
-                                              size: settings.iconSize * 0.6,
-                                              color: Theme.of(context).colorScheme.error,
+                                          SizedBox(height: settings.cardPadding.vertical),
+                                          Text(
+                                            person.name,
+                                            style: TextStyle(
+                                              fontSize: settings.subtitleFontSize,
+                                              fontWeight: FontWeight.bold,
+                                              color: Theme.of(context).colorScheme.onSurface,
                                             ),
-                                            onPressed: () => _showDeleteDialog(context, person),
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const Spacer(),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.edit,
+                                                  size: settings.iconSize * 0.6,
+                                                  color: Theme.of(context).colorScheme.primary,
+                                                ),
+                                                onPressed: () => _showEditDialog(
+                                                  context, 
+                                                  person,
+                                                  (newImage) {
+                                                    peopleProvider.updatePersonImage(
+                                                      peopleProvider.people.indexOf(person), 
+                                                      newImage
+                                                    );
+                                                  },
+                                                ),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.delete,
+                                                  size: settings.iconSize * 0.6,
+                                                  color: Theme.of(context).colorScheme.error,
+                                                ),
+                                                onPressed: () => _showDeleteDialog(context, person),
+                                              ),
+                                            ],
                                           ),
                                         ],
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
+                                  if (allRemediesTaken)
+                                    Positioned(
+                                      top: settings.cardPadding.top,
+                                      right: settings.cardPadding.right,
+                                      child: Container(
+                                        padding: EdgeInsets.all(settings.cardPadding.horizontal * 0.3),
+                                        decoration: const BoxDecoration(
+                                          color: Colors.green,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.check,
+                                          size: settings.iconSize * 0.5,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
-                              if (allRemediesTaken)
-                                Positioned(
-                                  top: settings.cardPadding.top,
-                                  right: settings.cardPadding.right,
-                                  child: Container(
-                                    padding: EdgeInsets.all(settings.cardPadding.horizontal * 0.3),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.check,
-                                      size: settings.iconSize * 0.5,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
+                            );
+                          },
                         );
                       },
                     ),
@@ -727,7 +759,10 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () => _showAddPersonDialog(context),
         backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Theme.of(context).colorScheme.onPrimary,
-        child: Icon(Icons.person_add, size: settings.iconSize),
+        child: Icon(
+          Icons.person_add, 
+          size: settings.iconSize,
+        ),
       ),
     );
   }

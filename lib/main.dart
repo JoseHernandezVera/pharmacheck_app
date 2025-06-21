@@ -5,6 +5,7 @@ import 'providers/user_provider.dart';
 import 'providers/people_provider.dart';
 import 'providers/remedies_provider.dart';
 import 'providers/settings_provider.dart';
+import 'providers/location_provider.dart';
 import 'themes/theme.dart';
 import 'themes/util.dart';
 
@@ -20,6 +21,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => PeopleProvider()),
         ChangeNotifierProvider(create: (_) => RemediesProvider()),
+        ChangeNotifierProvider(create: (_) => LocationProvider()),
         ChangeNotifierProvider.value(value: settingsProvider),
       ],
       child: const MyApp(),
@@ -32,7 +34,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final settings = Provider.of<SettingsProvider>(context, listen: true);
+    final settings = Provider.of<SettingsProvider>(context);
     final textTheme = createTextTheme(context, "Roboto", "Roboto Condensed");
     final materialTheme = MaterialTheme(textTheme);
 

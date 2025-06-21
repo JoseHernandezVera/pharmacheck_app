@@ -2,38 +2,47 @@ import 'package:flutter/material.dart';
 import '../models/person_model.dart';
 
 class PeopleProvider with ChangeNotifier {
-  final List<Person> _people = [
-    Person(name: 'Jonathan Catalan', imagePath: 'assets/images/perfil.jpg'),
-    Person(name: 'Fabian Arevalo', imagePath: 'assets/images/perfil.jpg'),
-    Person(name: 'Martin Bascuñan', imagePath: 'assets/images/perfil.jpg'),
-  ];
+  final Map<String, List<Person>> _peopleByUser = {};
+  String _currentEmail = '';
 
-  List<Person> get people => _people;
+  void setCurrentUserEmail(String email) {
+    _currentEmail = email;
+    _peopleByUser.putIfAbsent(email, () => []);
+    notifyListeners();
+  }
+
+  List<Person> get people => _peopleByUser[_currentEmail] ?? [];
 
   void addPerson(String name, String imagePath) {
-    _people.add(Person(name: name, imagePath: imagePath));
+    _peopleByUser[_currentEmail] ??= [];
+    _peopleByUser[_currentEmail]!.add(Person(name: name, imagePath: imagePath));
     notifyListeners();
   }
 
   void removePerson(int index) {
-    _people.removeAt(index);
+    _peopleByUser[_currentEmail]?.removeAt(index);
     notifyListeners();
   }
 
   void editPerson(int index, String newName) {
-    _people[index] = Person(
-      name: newName,
-      imagePath: _people[index].imagePath,
-    );
-    notifyListeners();
+    final person = _peopleByUser[_currentEmail]?[index];
+    if (person != null) {
+      _peopleByUser[_currentEmail]![index] = Person(
+        name: newName,
+        imagePath: person.imagePath,
+      );
+      notifyListeners();
+    }
   }
 
   void updatePersonImage(int index, String newImagePath) {
-    final person = people[index];
-    people[index] = Person(
-      name: person.name,
-      imagePath: newImagePath,
-    );
-    notifyListeners();
+    final person = _peopleByUser[_currentEmail]?[index];
+    if (person != null) {
+      _peopleByUser[_currentEmail]![index] = Person(
+        name: person.name,
+        imagePath: newImagePath,
+      );
+      notifyListeners();
+    }
   }
 }

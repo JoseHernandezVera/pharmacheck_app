@@ -34,28 +34,32 @@ class _AboutPageState extends State<AboutPage> {
       final data = json.decode(jsonString) as Map<String, dynamic>;
       if (data.isEmpty) throw Exception('El JSON está vacío');
       
+      if (!mounted) return;
+
       setState(() {
         _questions = data;
-        _initializeAnswers();
         _isLoading = false;
       });
+
+      await _initializeAnswers();
     } catch (e) {
+      if (!mounted) return;
+
       setState(() => _isLoading = false);
-      if (mounted) {
-        showDialog(
-          context: context,
-          builder: (ctx) => AlertDialog(
-            title: const Text('Error'),
-            content: Text('No se pudieron cargar las preguntas: $e'),
-            actions: [
-              TextButton(
-                onPressed: () => _loadQuestions(),
-                child: const Text('Reintentar'),
-              ),
-            ],
-          ),
-        );
-      }
+
+      showDialog(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Error'),
+          content: Text('No se pudieron cargar las preguntas: $e'),
+          actions: [
+            TextButton(
+              onPressed: () => _loadQuestions(),
+              child: const Text('Reintentar'),
+            ),
+          ],
+        ),
+      );
     }
   }
 
@@ -114,10 +118,13 @@ class _AboutPageState extends State<AboutPage> {
 
     try {
       await launchUrl(emailUri);
+
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('¡Gracias por tu feedback!')),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error al enviar: $e')),
       );

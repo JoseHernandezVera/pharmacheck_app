@@ -22,57 +22,100 @@ class _NoInternetPageState extends State<NoInternetPage> {
     setState(() => _isCheckingConnection = true);
     
     final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult != ConnectivityResult.none) {
+    final hasConnection = connectivityResult.isNotEmpty &&
+    !connectivityResult.contains(ConnectivityResult.none);
+    
+    if (!mounted) return;
+    
+    if (hasConnection) {
       widget.onRetry();
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Aún no hay conexión a Internet')),
+        SnackBar(
+          content: Text(
+            'Aún no hay conexión a Internet',
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onError,
+            ),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
       );
     }
     
-    setState(() => _isCheckingConnection = false);
+    if (mounted) {
+      setState(() => _isCheckingConnection = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Sin conexión'),
-        backgroundColor: Colors.red,
+        title: Text(
+          'Sin conexión',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary,
+          ),
+        ),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimary,
+        ),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.wifi_off,
               size: 80,
-              color: Colors.red,
+              color: Theme.of(context).colorScheme.error,
             ),
             const SizedBox(height: 20),
-            const Text(
+            Text(
               'No hay conexión a Internet',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Por favor, verifica tu conexión e intenta nuevamente',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
               onPressed: _isCheckingConnection ? null : _checkConnectionAndRetry,
               icon: _isCheckingConnection
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 16,
                       height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
                     )
-                  : const Icon(Icons.refresh),
-              label: Text(_isCheckingConnection ? 'Verificando...' : 'Reintentar'),
+                  : Icon(
+                      Icons.refresh,
+                      color: Theme.of(context).colorScheme.onPrimary,
+                    ),
+              label: Text(
+                _isCheckingConnection ? 'Verificando...' : 'Reintentar',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
+              ),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             ),
           ],

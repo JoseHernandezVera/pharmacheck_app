@@ -3,7 +3,7 @@ import '../models/remedy_model.dart';
 import 'dart:async';
 
 class RemediesProvider with ChangeNotifier {
-  final Map<String, List<Remedy>> _remedies = {};
+  final Map<String, List<Remedy>> _userRemedies = {};
   Timer? _updateTimer;
 
   RemediesProvider() {
@@ -23,51 +23,62 @@ class RemediesProvider with ChangeNotifier {
     super.dispose();
   }
 
-  List<Remedy> getRemediesForPerson(String personName) {
-    return _remedies[personName] ?? [];
+  List<Remedy> getRemediesForUser(String userEmail) {
+    return _userRemedies[userEmail] ?? [];
   }
 
-  void addRemedy(String personName, String name, String time) {
-    if (!_remedies.containsKey(personName)) {
-      _remedies[personName] = [];
+  void addRemedyForUser(String userEmail, String name, String time) {
+    if (!_userRemedies.containsKey(userEmail)) {
+      _userRemedies[userEmail] = [];
     }
-    _remedies[personName]!.add(Remedy(name: name, time: time));
+    _userRemedies[userEmail]!.add(Remedy(name: name, time: time));
     notifyListeners();
   }
 
-  void toggleRemedyStatus(String personName, int index) {
-    if (_remedies.containsKey(personName) && index < _remedies[personName]!.length) {
-      _remedies[personName]![index].isTaken = !_remedies[personName]![index].isTaken;
+  void toggleRemedyStatus(String userEmail, int index) {
+    final remedies = _userRemedies[userEmail];
+    if (remedies != null && index < remedies.length) {
+      remedies[index].isTaken = !remedies[index].isTaken;
       notifyListeners();
     }
   }
 
-  void removeRemedy(String personName, int index) {
-    if (_remedies.containsKey(personName) && index < _remedies[personName]!.length) {
-      _remedies[personName]!.removeAt(index);
+  void removeRemedy(String userEmail, int index) {
+    final remedies = _userRemedies[userEmail];
+    if (remedies != null && index < remedies.length) {
+      remedies.removeAt(index);
       notifyListeners();
     }
   }
 
-  bool isAnyRemedyDueSoon(String personName) {
-    final remedies = getRemediesForPerson(personName);
+  void updateRemedy(String userEmail, int index, {String? name, String? time}) {
+    final remedies = _userRemedies[userEmail];
+    if (remedies != null && index < remedies.length) {
+      final remedy = remedies[index];
+      if (name != null) remedy.name = name;
+      if (time != null) remedy.time = time;
+      notifyListeners();
+    }
+  }
+
+  bool isAnyRemedyDueSoon(String userEmail) {
+    final remedies = getRemediesForUser(userEmail);
     if (remedies.isEmpty) return false;
 
     final now = DateTime.now();
-    
     for (final remedy in remedies) {
       if (remedy.isTaken) continue;
-      
+
       try {
         final timeParts = remedy.time.split(':');
         final remedyTime = DateTime(
-          now.year, 
-          now.month, 
+          now.year,
+          now.month,
           now.day,
-          int.parse(timeParts[0]), 
-          int.parse(timeParts[1])
+          int.parse(timeParts[0]),
+          int.parse(timeParts[1]),
         );
-        
+
         final difference = remedyTime.difference(now);
         if (difference.inMinutes <= 60 && difference.inMinutes > 0) {
           return true;
@@ -76,38 +87,28 @@ class RemediesProvider with ChangeNotifier {
         debugPrint('Error al parsear hora del remedio: $e');
       }
     }
-    
+
     return false;
   }
 
-  bool areAllRemediesTaken(String personName) {
-    final remedies = getRemediesForPerson(personName);
+  bool areAllRemediesTaken(String userEmail) {
+    final remedies = getRemediesForUser(userEmail);
     if (remedies.isEmpty) return false;
-    
-    return remedies.every((remedy) => remedy.isTaken);
+    return remedies.every((r) => r.isTaken);
   }
 
-  CardStatus getCardStatus(String personName) {
-    if (areAllRemediesTaken(personName)) {
+  CardStatus getCardStatus(String userEmail) {
+    if (areAllRemediesTaken(userEmail)) {
       return CardStatus.allTaken;
-    } else if (isAnyRemedyDueSoon(personName)) {
+    } else if (isAnyRemedyDueSoon(userEmail)) {
       return CardStatus.dueSoon;
     }
     return CardStatus.normal;
-  }
-
-  void updateRemedy(String personName, int index, {String? name, String? time}) {
-    if (_remedies.containsKey(personName) && index < _remedies[personName]!.length) {
-      final remedy = _remedies[personName]![index];
-      if (name != null) remedy.name = name;
-      if (time != null) remedy.time = time;
-      notifyListeners();
-    }
   }
 }
 
 enum CardStatus {
   normal,
   dueSoon,
-  allTaken
+  allTaken,
 }
