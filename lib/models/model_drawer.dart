@@ -6,7 +6,7 @@ import '../pages/profile.dart';
 import '../pages/remenber.dart';
 import '../pages/settings.dart';
 import '../pages/about.dart';
-import '../pages/login.dart'; // Asegúrate de importar la página de login
+import '../pages/login.dart';
 import 'dart:io';
 
 class ModelDrawer extends StatelessWidget {
@@ -105,7 +105,7 @@ class ModelDrawer extends StatelessWidget {
               color: Theme.of(context).colorScheme.primary,
             ),
             title: Text(
-              "Recordar", 
+              "Noticias", 
               style: TextStyle(
                 fontSize: 18,
                 color: Theme.of(context).colorScheme.onSurface,
@@ -159,7 +159,6 @@ class ModelDrawer extends StatelessWidget {
               );
             },
           ),
-          // Botón de cerrar sesión
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton.icon(

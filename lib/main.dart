@@ -8,9 +8,13 @@ import 'providers/settings_provider.dart';
 import 'providers/location_provider.dart';
 import 'themes/theme.dart';
 import 'themes/util.dart';
+import 'notification/notification_service.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  await NotificationService().initialize();
+  
   runApp(const AppInitializer());
 }
 
@@ -32,7 +36,7 @@ class _AppInitializerState extends State<AppInitializer> {
   }
 
   Future<void> _init() async {
-    await settingsProvider.loadPreferences(context);
+    await settingsProvider.loadPreferences();
     setState(() => isReady = true);
   }
 

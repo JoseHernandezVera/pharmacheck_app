@@ -11,7 +11,7 @@ class SettingsProvider with ChangeNotifier {
   CardSize get cardSize => _cardSize;
   ThemeMode get themeMode => _themeMode;
 
-  Future<void> loadPreferences(BuildContext context) async {
+  Future<void> loadPreferences() async {
     _prefs = await SharedPreferences.getInstance();
 
     final savedSize = _prefs.getString('cardSize');
@@ -21,7 +21,7 @@ class SettingsProvider with ChangeNotifier {
         orElse: () => CardSize.medium,
       );
     } else {
-      _cardSize = getAdaptiveCardSize(context);
+      _cardSize = CardSize.medium;
     }
 
     final savedTheme = _prefs.getString('themeMode');
