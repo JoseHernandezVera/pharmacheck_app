@@ -66,16 +66,18 @@ class _AboutPageState extends State<AboutPage> {
   Future<void> _initializeAnswers() async {
     final prefs = await SharedPreferences.getInstance();
     final savedData = prefs.getString('feedback_data');
-    
+
     setState(() {
       _answers = _questions?.map((category, questions) {
-        final savedCategory = savedData != null 
-            ? Map<String, dynamic>.from(json.decode(savedData))[category] 
+        final savedCategory = savedData != null
+            ? Map<String, dynamic>.from(json.decode(savedData))[category]
             : null;
-        
+
         return MapEntry(
           category,
-          savedCategory ?? List<int>.filled(questions.length, 0),
+          savedCategory != null
+              ? List<int>.from(savedCategory)
+              : List<int>.filled(questions.length, 0),
         );
       }) ?? {};
     });
