@@ -51,10 +51,6 @@ La aplicación combina funcionalidades clave con una interfaz amigable y adaptab
 - Modo claro/oscuro o ajuste automático según sistema.
 - Tamaños de elementos ajustables (pequeño/mediano).
 
-## Diagrama
-
-
-
 ## Enlaces Relevantes
 - **Repositorio GitHub:** [Acceder al Código](https://github.com/JoseHernandezVera/pharmacheck_app.git)
 
