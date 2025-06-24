@@ -1,4 +1,5 @@
 # PharmaCheck - Gestión de Medicamentos para Atención Domiciliaria
+![Logo de PharmaCheck](assets/images/logo_pildora.png)
 
 ## Descripción del Proyecto
 
@@ -57,16 +58,28 @@ A continuación, se muestra el diagrama general del funcionamiento de la app:
 
 ![Diagrama de la App](diagrama_pharmacheck.png)
 
+## Screenshots
+| Inicio de Sesión                            | Lista de Pacientes                          | Gestión de Medicamentos                     |
+|--------------------------------------------|--------------------------------------------|---------------------------------------------|
+| ![Inicio de Sesión](fotos_app/login.jpeg) | ![Lista de Pacientes](fotos_app/1.jpeg) | ![Gestión de Medicamentos](fotos_app/5.jpeg) |
+
+| Mapa                                       | Perfil                                     | Noticias                                    |
+|--------------------------------------------|--------------------------------------------|---------------------------------------------|
+| ![Mapa](fotos_app/8.jpeg)           | ![Perfil](fotos_app/9.jpeg)       | ![Noticias](fotos_app/10.jpeg)         |
+
+
 ## Enlaces Relevantes
 - **Repositorio GitHub:** [Acceder al Código](https://github.com/JoseHernandezVera/pharmacheck_app.git)
+- **APK de la App:** [Descargar APK](https://github.com/JoseHernandezVera/pharmacheck_app/raw/main/APK/pharmacheck.apk)
 
 ## Tecnologías Utilizadas
 
 - Flutter (Framework multiplataforma)
-- Sqflite (Autenticación y base de datos, si aplica)
+- Sqflite (Autenticación y base de datos)
 - Google Maps API (Integración de mapas)
 - Provider (Gestión de estado)
 - SharedPreferences (Almacenamiento local)
+- Image picker (Seleccionar imágenes/videos de la galería o capturar una nueva foto/video con la cámara)
 
 ## Autor
 
