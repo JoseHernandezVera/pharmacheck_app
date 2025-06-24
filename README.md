@@ -54,7 +54,7 @@ La aplicación combina funcionalidades clave con una interfaz amigable y adaptab
 
 ## Diagrama de la Aplicación
 
-A continuación, se muestra el diagrama general del funcionamiento de la app:
+A continuación, se muestra el diagrama de la navegación de la app:
 
 ![Diagrama de la App](diagrama_pharmacheck.png)
 
@@ -67,10 +67,13 @@ A continuación, se muestra el diagrama general del funcionamiento de la app:
 |--------------------------------------------|--------------------------------------------|---------------------------------------------|
 | ![Mapa](fotos_app/8.jpeg)           | ![Perfil](fotos_app/9.jpeg)       | ![Noticias](fotos_app/10.jpeg)         |
 
+| Drawer                                       |
+|--------------------------------------------|
+| <img src="fotos_app/4.jpeg" alt="Drawer" width="305"/>           |
 
 ## Enlaces Relevantes
 - **Repositorio GitHub:** [Acceder al Código](https://github.com/JoseHernandezVera/pharmacheck_app.git)
-- **APK de la App:** [Descargar APK](https://github.com/JoseHernandezVera/pharmacheck_app/raw/main/APK/pharmacheck.apk)
+- **APK de la App:** [Descargar APK](https://github.com/JoseHernandezVera/pharmacheck_app/tree/main/APK/pharmacheck.apk)
 
 ## Tecnologías Utilizadas
 
